@@ -1,0 +1,28 @@
+{
+  "name": "Auto Login Google",
+  "description": "Auto Login Google.",
+  "version": "0.0.1",
+  "permissions": [
+    "<all_urls>",
+    "activeTab",
+    "tabs"
+  ],
+  "background": {
+    "scripts": [
+      "/background.js"
+    ],
+    "persistent": true
+  },
+  "manifest_version": 2,
+  "content_scripts": [
+    {
+      "run_at": "document_idle",
+      "matches": [
+        "https://*.google.com/*"
+      ],
+      "js": [
+        "/inject.js"
+      ]
+    }
+  ]
+}
