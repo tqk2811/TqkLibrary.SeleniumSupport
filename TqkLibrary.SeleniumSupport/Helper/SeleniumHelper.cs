@@ -3,7 +3,7 @@ using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.ObjectModel;
 
-namespace TqkLibrary.SeleniumSupport.Helper
+namespace TqkLibrary.SeleniumSupport
 {
   public static class SeleniumHelper
   {

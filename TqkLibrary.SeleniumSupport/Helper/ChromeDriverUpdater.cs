@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace TqkLibrary.SeleniumSupport.Helper
+namespace TqkLibrary.SeleniumSupport
 {
   public static class ChromeDriverUpdater
   {

@@ -6,14 +6,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TqkLibrary.SeleniumSupport.Helper
+namespace TqkLibrary.SeleniumSupport
 {
   public static class GoogleLoginExtension
   {
-    public static void GenerateExtension(string dirPath,string email, string pass, string recovery,int timeout = 180000)
+    public static void GenerateExtension(string dirPath,string email, string pass, string recovery,int timeout = 60000,int intervalTime = 500)
     {
-      string inject_ = Resource.GoogleLogin_Ext_inject.Replace("{email}", email).Replace("{pass}", pass).Replace("{recovery}", recovery).Replace("{timeout}",timeout.ToString());
-      if (Directory.Exists(dirPath)) try { Directory.Delete(dirPath); } catch (Exception) { }
+      string inject_ = Resource.GoogleLogin_Ext_inject
+        .Replace("{email}", email)
+        .Replace("{pass}", pass)
+        .Replace("{recovery}", recovery)
+        .Replace("{timeout}",timeout.ToString())
+        .Replace("{intervalTime}",intervalTime.ToString());
+      if (Directory.Exists(dirPath)) try { Directory.Delete(dirPath); } catch { }
 
       var dirInfo = Directory.CreateDirectory(dirPath);
 

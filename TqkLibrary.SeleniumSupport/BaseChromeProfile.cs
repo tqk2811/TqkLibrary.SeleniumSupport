@@ -18,10 +18,10 @@ namespace TqkLibrary.SeleniumSupport
   {
     protected static readonly Random rd = new Random();
     protected ChromeDriverService service;
-    public string ChromeDrivePath { get; set; }
+    public string ChromeDriverPath { get; set; }
     public bool HideCommandPromptWindow { get; set; } = true;
     private CancellationTokenRegistration? cancellationTokenRegistration;
-
+    public TimeSpan CommandTimeout { get; set; } = TimeSpan.FromMinutes(3);
     public bool IsOpenChrome
     {
       get { return chromeDriver != null || (process != null && !process.HasExited); }
@@ -39,13 +39,13 @@ namespace TqkLibrary.SeleniumSupport
     {
     }
 
-    protected BaseChromeProfile(string ChromeDrivePath)
+    protected BaseChromeProfile(string ChromeDriverPath)
     {
-      if (string.IsNullOrEmpty(ChromeDrivePath))
+      if (string.IsNullOrEmpty(ChromeDriverPath))
       {
-        ChromeDrivePath = Directory.GetCurrentDirectory() + "\\AppData\\ChromeDriver";
+        ChromeDriverPath = Directory.GetCurrentDirectory() + "\\AppData\\ChromeDriver";
       }
-      this.ChromeDrivePath = ChromeDrivePath;
+      this.ChromeDriverPath = ChromeDriverPath;
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ namespace TqkLibrary.SeleniumSupport
     /// profile.password_manager_enabled false</para>
     /// </summary>
     /// <returns></returns>
-    protected virtual ChromeOptions DefaultChromeOptions(string BinaryLocation = null)
+    protected ChromeOptions DefaultChromeOptions(string BinaryLocation = null)
     {
       ChromeOptions options = new ChromeOptions();
       if (!string.IsNullOrEmpty(BinaryLocation)) options.BinaryLocation = BinaryLocation;
@@ -96,7 +96,7 @@ namespace TqkLibrary.SeleniumSupport
       return options;
     }
 
-    protected virtual ChromeOptions LoadFromJsonFile(string filePath)
+    protected ChromeOptions LoadFromJsonFile(string filePath)
     {
       ChromeOptionConfig chromeOptionConfig = JsonConvert.DeserializeObject<ChromeOptionConfig>(File.ReadAllText(filePath));
       ChromeOptions chromeOptions = new ChromeOptions();
@@ -111,32 +111,33 @@ namespace TqkLibrary.SeleniumSupport
       return chromeOptions;
     }
 
-    public virtual bool OpenChrome(ChromeOptions chromeOptions) => OpenChrome(chromeOptions, CancellationToken.None);
-
-    public virtual bool OpenChrome(ChromeOptions chromeOptions, CancellationToken cancellationToken)
+    public bool OpenChrome(ChromeOptions chromeOptions, CancellationToken cancellationToken = default)
     {
       if (!IsOpenChrome)
       {
-        service = ChromeDriverService.CreateDefaultService(ChromeDrivePath);
+        service = ChromeDriverService.CreateDefaultService(ChromeDriverPath);
         service.HideCommandPromptWindow = HideCommandPromptWindow;
 
         tokenSource = new CancellationTokenSource();
         cancellationTokenRegistration = cancellationToken.Register(() => { if (tokenSource?.IsCancellationRequested == false) tokenSource.Cancel(); });
-        chromeDriver = new ChromeDriver(service, chromeOptions);
+        chromeDriver = new ChromeDriver(service, chromeOptions, CommandTimeout);
         StateChange?.Invoke(IsOpenChrome);
         return true;
       }
       return false;
     }
 
-    public virtual Process OpenChromeWithoutSelenium(string Arguments, string ChromePath = null)
+    public Process OpenChromeWithoutSelenium(string Arguments, string ChromePath = null)
     {
       if (!IsOpenChrome)
       {
         process = new Process();
         if (!string.IsNullOrEmpty(ChromePath)) process.StartInfo.FileName = ChromePath;
         else process.StartInfo.FileName = ChromeDriverUpdater.GetPath();
+        process.StartInfo.WorkingDirectory = new FileInfo(process.StartInfo.FileName).Directory.FullName;
         process.StartInfo.Arguments = Arguments;
+        process.EnableRaisingEvents = true;
+        process.Exited += Process_Exited;
         process.Start();
         StateChange?.Invoke(IsOpenChrome);
         return process;
@@ -144,7 +145,12 @@ namespace TqkLibrary.SeleniumSupport
       return null;
     }
 
-    public virtual bool CloseChrome()
+    private void Process_Exited(object sender, EventArgs e)
+    {
+      //process = null;
+    }
+
+    public bool CloseChrome()
     {
       if (IsOpenChrome)
       {
@@ -165,14 +171,18 @@ namespace TqkLibrary.SeleniumSupport
       return false;
     }
 
-    public virtual void Stop() => tokenSource?.Cancel();
+    public void Stop() => tokenSource?.Cancel();
 
-    protected virtual void Delay(int min, int max)
+    public void Delay(int min, int max)
     {
       Task.Delay(rd.Next(min, max), tokenSource.Token).Wait();
     }
+    public void Delay(int time)
+    {
+      Task.Delay(time, tokenSource.Token).Wait();
+    }
 
-    public virtual void SaveHtml(string path)
+    public void SaveHtml(string path)
     {
       if (IsOpenChrome)
       {
@@ -192,23 +202,54 @@ namespace TqkLibrary.SeleniumSupport
 
     #region Func
 
-    protected bool ElementsExists(ReadOnlyCollection<IWebElement> webElements) => webElements?.Count > 0;
+    protected static bool ElementsExists(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0;
 
-    //protected bool ElementsNotExists(ReadOnlyCollection<IWebElement> webElements) => !ElementsExists(webElements);
+    protected static bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed);
 
-    protected bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements?.All(x => x.Displayed) == true;
+    protected static bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed);
 
-    protected bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements?.Any(x => x.Displayed) == true;
+    protected static bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed && x.Enabled);
 
-    protected bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements?.All(x => x.Displayed && x.Enabled) == true;
+    protected static bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed && x.Enabled);
 
-    protected bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements?.Any(x => x.Displayed && x.Enabled) == true;
+    protected static bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Selected);
 
-    protected bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements?.All(x => x.Selected) == true;
+    protected static bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Selected);
 
-    protected bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements?.Any(x => x.Selected) == true;
+    protected static bool StartsWith(string url, string check) => url.StartsWith(check);
+    protected static bool EndsWith(string url, string check) => url.EndsWith(check);
+    protected static bool Equals(string url, string check) => url.Equals(check);
+    protected static bool Contains(string url, string check) => url.Contains(check);
 
+    protected static bool NotStartsWith(string url, string check) => !url.StartsWith(check);
+    protected static bool NotEndsWith(string url, string check) => !url.EndsWith(check);
+    protected static bool NotEquals(string url, string check) => !url.Equals(check);
+    protected static bool NotContains(string url, string check) => !url.Contains(check);
     #endregion Func
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="func">(string url, string check)</param>
+    /// <param name="isThrow"></param>
+    /// <param name="delay"></param>
+    /// <param name="timeout"></param>
+    /// <returns></returns>
+    protected bool WaitUntilUrl(string check, Func<string,string,bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+    {
+      using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+      while (!timeoutToken.IsCancellationRequested)
+      {
+        if (func(chromeDriver.Url, check)) return true;
+        if (tokenSource != null) Task.Delay(delay, tokenSource.Token).Wait();
+        else Task.Delay(delay, timeoutToken.Token).Wait();
+
+        tokenSource?.Token.ThrowIfCancellationRequested();
+      }
+      if (isThrow) throw new ChromeAutoException($"WaitUntilUrl failed: {check}");
+      return false;
+    }
 
     protected ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
     => WaitUntil_(chromeDriver, by, func, isThrow, delay, timeout);
@@ -223,7 +264,7 @@ namespace TqkLibrary.SeleniumSupport
       while (!timeoutToken.IsCancellationRequested)
       {
         var eles = searchContext.FindElements(by);
-        if (func(eles)) return eles;
+        try { if (func(eles)) return eles; } catch { }
         if (tokenSource != null) Task.Delay(delay, tokenSource.Token).Wait();
         else Task.Delay(delay, timeoutToken.Token).Wait();
 
@@ -243,36 +284,9 @@ namespace TqkLibrary.SeleniumSupport
     #endregion WaitUntil
 
     #region JSDropFile
-
-    private const string JsDropFile = @"var target = arguments[0],
-offsetX = arguments[1],
-offsetY = arguments[2],
-document = target.ownerDocument || document,
-window = document.defaultView || window;
-
-var input = document.createElement('INPUT');
-input.type = 'file';
-input.style.display = 'none';
-input.onchange = function () {
-  var rect = target.getBoundingClientRect(),
-    x = rect.left + (offsetX || (rect.width >> 1)),
-    y = rect.top + (offsetY || (rect.height >> 1)),
-    dataTransfer = { files: this.files };
-
-  ['dragenter', 'dragover', 'drop'].forEach(function (name) {
-    var evt = document.createEvent('MouseEvent');
-    evt.initMouseEvent(name, !0, !0, window, 0, 0, 0, x, y, !1, !1, !1, !1, 0, null);
-    evt.dataTransfer = dataTransfer;
-    target.dispatchEvent(evt);
-  });
-  setTimeout(function () { document.body.removeChild(input); }, 25);
-}
-document.body.appendChild(input);
-return input;";
-
-    protected void DropFile(string file, IWebElement webElement, int offsetX, int offsetY)
+    protected void JsDropFile(string file, IWebElement webElement, int offsetX, int offsetY)
     {
-      IWebElement input = (IWebElement)chromeDriver.ExecuteScript(JsDropFile, webElement, offsetX, offsetY);
+      IWebElement input = (IWebElement)chromeDriver.ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
       input.SendKeys(file);
     }
 

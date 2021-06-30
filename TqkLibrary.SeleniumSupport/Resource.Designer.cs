@@ -80,21 +80,17 @@ namespace TqkLibrary.SeleniumSupport {
         ///	recovery: &quot;{recovery}&quot;
         ///};
         ///var step = 0;
-        ///var timeout = {timeout};
+        ///var timeout = Number(&quot;{timeout}&quot;);
+        ///var intervalTime = Number(&quot;{intervalTime}&quot;);
         ///
         ///window.addEventListener(&apos;load&apos;, function () {
-        ///	window.setInterval(RunLogin, 500);
+        ///	window.setInterval(RunLogin, intervalTime);
         ///	window.setTimeout(closeChrome, timeout);
+        ///	if (window.location.href.includes(&quot;myaccount.google.com&quot;)) closeChrome();
+        ///	if (!window.location.href.includes(&quot;accounts.google.com&quot;)) closeChrome();
         ///});
         ///function RunLogin() {
-        ///	switch (step) {
-        ///		case 0: {
-        ///			if (document.body.innerHTML.includes(g_acc.email)) {
-        ///				step = -1;
-        ///				closeChrome();
-        ///			}
-        ///			var email = document.querySelector(&quot;input[id=&apos;identifierId&apos;]&quot;);
-        ///			var btn_emailnext = document.qu [rest of string was truncated]&quot;;.
+        ///	switch (step)  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GoogleLogin_Ext_inject {
             get {
@@ -139,7 +135,36 @@ namespace TqkLibrary.SeleniumSupport {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to var config={mode:&quot;fixed_servers&quot;,rules:{singleProxy:{scheme:&quot;http&quot;,host:&quot;{host}&quot;,port:{port}},bypassList:[&quot;localhost&quot;]}};chrome.proxy.settings.set({value:config,scope:&quot;regular&quot;},function(){});function callbackFn(details){return{authCredentials:{username:&quot;{username}&quot;,password:&quot;{password}&quot;}};}chrome.webRequest.onAuthRequired.addListener(callbackFn,{urls:[&quot;&lt;all_urls&gt;&quot;]},[&apos;blocking&apos;]);.
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string JsDropFile {
+            get {
+                return ResourceManager.GetString("JsDropFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to var config = {
+        ///	mode: &quot;fixed_servers&quot;,
+        ///	rules: {
+        ///		singleProxy: {
+        ///			scheme: &quot;http&quot;,
+        ///			host: &quot;{host}&quot;,
+        ///			port: &quot;{port}&quot;
+        ///		},
+        ///		bypassList: [&quot;localhost&quot;]
+        ///	}
+        ///};
+        ///chrome.proxy.settings.set({value: config,scope: &quot;regular&quot;}, function () {});
+        ///function callbackFn(details) {
+        ///	return {
+        ///		authCredentials: {
+        ///			username: &quot;{username}&quot;,
+        ///			password: &quot;{password}&quot;
+        ///		}
+        ///	};
+        ///}
+        ///chrome.webRequest.onAuthRequired.addListener(callbackFn, {urls: [&quot;&lt;all_urls&gt;&quot;]}, [&apos;blocking&apos;]);.
         /// </summary>
         internal static string ProxyLogin_Ext_background {
             get {
@@ -154,9 +179,6 @@ namespace TqkLibrary.SeleniumSupport {
         ///  &quot;name&quot;: &quot;ChromeProxy&quot;,
         ///  &quot;permissions&quot;: [
         ///    &quot;proxy&quot;,
-        ///    &quot;tabs&quot;,
-        ///    &quot;unlimitedStorage&quot;,
-        ///    &quot;storage&quot;,
         ///    &quot;&lt;all_urls&gt;&quot;,
         ///    &quot;webRequest&quot;,
         ///    &quot;webRequestBlocking&quot;

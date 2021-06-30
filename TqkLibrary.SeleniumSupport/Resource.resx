@@ -119,18 +119,21 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="GoogleLogin_Ext_background" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\GoogleLogin_Ext_background.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>Resources\GoogleLogin_Ext_background.js;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="GoogleLogin_Ext_inject" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\GoogleLogin_Ext_inject.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>Resources\GoogleLogin_Ext_inject.js;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="GoogleLogin_Ext_manifest" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\GoogleLogin_Ext_manifest.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>Resources\GoogleLogin_Ext_manifest.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="JsDropFile" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\JsDropFile.js;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="ProxyLogin_Ext_background" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\ProxyLogin_Ext_background.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>Resources\ProxyLogin_Ext_background.js;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="ProxyLogin_Ext_manifest" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\ProxyLogin_Ext_manifest.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>Resources\ProxyLogin_Ext_manifest.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
 </root>

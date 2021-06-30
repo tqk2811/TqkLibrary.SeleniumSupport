@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace TqkLibrary.SeleniumSupport.Helper
+namespace TqkLibrary.SeleniumSupport
 {
   internal class CustomStaticDataSource : IStaticDataSource, IDisposable
   {
