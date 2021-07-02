@@ -9,9 +9,20 @@ namespace TqkLibrary.SeleniumSupport
   {
     public static void GenerateExtension(string filepath, string host, string port, string username, string password)
     {
-      string background_ = Resource.ProxyLogin_Ext_background.Replace("{host}", host).Replace("{port}", port.ToString()).Replace("{username}", username).Replace("{password}", password);
+      if (string.IsNullOrEmpty(filepath)) throw new ArgumentNullException(nameof(filepath));
+      if (string.IsNullOrEmpty(host)) throw new ArgumentNullException(nameof(host));
+      if (string.IsNullOrEmpty(port)) throw new ArgumentNullException(nameof(port));
+      if (string.IsNullOrEmpty(username)) throw new ArgumentNullException(nameof(username));
+      if (string.IsNullOrEmpty(password)) throw new ArgumentNullException(nameof(password));
+
       if (File.Exists(filepath)) try { File.Delete(filepath); } catch (Exception) { }
-      ZipFile zipFile = ZipFile.Create(filepath);
+
+      string background_ = Resource.ProxyLogin_Ext_background
+        .Replace("{host}", host)
+        .Replace("{port}", port.ToString())
+        .Replace("{username}", username)
+        .Replace("{password}", password);
+      using ZipFile zipFile = ZipFile.Create(filepath);
       zipFile.BeginUpdate();
       using CustomStaticDataSource manifest = new CustomStaticDataSource(Resource.ProxyLogin_Ext_manifest);
       zipFile.Add(manifest, "manifest.json");
@@ -21,6 +32,22 @@ namespace TqkLibrary.SeleniumSupport
       zipFile.Close();
     }
 
-    public static void GenerateExtension(string filepath, string host, int port, string username, string password) => GenerateExtension(filepath, host, port.ToString(), username, password);
+    public static void GenerateExtension(string filepath, string host, int port, string username, string password) 
+      => GenerateExtension(filepath, host, port.ToString(), username, password);
+
+
+    private class CustomStaticDataSource : IStaticDataSource, IDisposable
+    {
+      private readonly MemoryStream memoryStream;
+
+      public CustomStaticDataSource(string content)
+      {
+        this.memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+      }
+
+      public void Dispose() => memoryStream.Dispose();
+
+      public Stream GetSource() => memoryStream;
+    }
   }
 }

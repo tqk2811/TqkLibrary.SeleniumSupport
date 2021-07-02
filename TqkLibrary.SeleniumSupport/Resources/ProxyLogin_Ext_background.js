@@ -9,13 +9,12 @@ var config = {
 		bypassList: ["localhost"]
 	}
 };
+var authCre = {
+	authCredentials: {
+		username: "{username}",
+		password: "{password}"
+	}
+};
+
 chrome.proxy.settings.set({value: config,scope: "regular"}, function () {});
-function callbackFn(details) {
-	return {
-		authCredentials: {
-			username: "{username}",
-			password: "{password}"
-		}
-	};
-}
-chrome.webRequest.onAuthRequired.addListener(callbackFn, {urls: ["<all_urls>"]}, ['blocking']);
+chrome.webRequest.onAuthRequired.addListener(function callbackFn(details) { return authCre; }, { urls: ["<all_urls>"] }, ['blocking']);
