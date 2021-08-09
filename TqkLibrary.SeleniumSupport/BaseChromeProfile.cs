@@ -35,11 +35,7 @@ namespace TqkLibrary.SeleniumSupport
 
     public event RunningStateChange StateChange;
 
-    protected BaseChromeProfile() : this(null)
-    {
-    }
-
-    protected BaseChromeProfile(string ChromeDriverPath)
+    public BaseChromeProfile(string ChromeDriverPath)
     {
       if (string.IsNullOrEmpty(ChromeDriverPath))
       {
@@ -73,7 +69,7 @@ namespace TqkLibrary.SeleniumSupport
     /// profile.password_manager_enabled false</para>
     /// </summary>
     /// <returns></returns>
-    protected ChromeOptions DefaultChromeOptions(string BinaryLocation = null)
+    public ChromeOptions DefaultChromeOptions(string BinaryLocation = null)
     {
       ChromeOptions options = new ChromeOptions();
       if (!string.IsNullOrEmpty(BinaryLocation)) options.BinaryLocation = BinaryLocation;
@@ -96,7 +92,7 @@ namespace TqkLibrary.SeleniumSupport
       return options;
     }
 
-    protected ChromeOptions LoadFromJsonFile(string filePath)
+    public ChromeOptions LoadFromJsonFile(string filePath)
     {
       ChromeOptionConfig chromeOptionConfig = JsonConvert.DeserializeObject<ChromeOptionConfig>(File.ReadAllText(filePath));
       ChromeOptions chromeOptions = new ChromeOptions();
@@ -133,7 +129,7 @@ namespace TqkLibrary.SeleniumSupport
       {
         process = new Process();
         if (!string.IsNullOrEmpty(ChromePath)) process.StartInfo.FileName = ChromePath;
-        else process.StartInfo.FileName = ChromeDriverUpdater.GetPath();
+        else process.StartInfo.FileName = ChromeDriverUpdater.GetChromePath();
         process.StartInfo.WorkingDirectory = new FileInfo(process.StartInfo.FileName).Directory.FullName;
         process.StartInfo.Arguments = Arguments;
         process.EnableRaisingEvents = true;
@@ -147,14 +143,19 @@ namespace TqkLibrary.SeleniumSupport
 
     private void Process_Exited(object sender, EventArgs e)
     {
-      //process = null;
+      StateChange?.Invoke(IsOpenChrome);
     }
 
     public bool CloseChrome()
     {
       if (IsOpenChrome)
       {
-        if (process?.HasExited == false) process?.Kill();
+        bool callStateChange = true;
+        if (process?.HasExited == false)
+        {
+          process?.Kill();
+          callStateChange = false;
+        }
         process?.Dispose();
         process = null;
         chromeDriver?.Quit();
@@ -165,7 +166,7 @@ namespace TqkLibrary.SeleniumSupport
         cancellationTokenRegistration = null;
         tokenSource?.Dispose();
         tokenSource = null;
-        StateChange?.Invoke(IsOpenChrome);
+        if(callStateChange) StateChange?.Invoke(IsOpenChrome);
         return true;
       }
       return false;
@@ -192,39 +193,39 @@ namespace TqkLibrary.SeleniumSupport
       }
     }
 
-    protected void SwitchToFrame(By by) => chromeDriver.SwitchTo().Frame(WaitUntil(by, ElementsExists, true).First());
+    public void SwitchToFrame(By by) => chromeDriver.SwitchTo().Frame(WaitUntil(by, ElementsExists, true).First());
 
-    protected ReadOnlyCollection<IWebElement> FindElements(By by) => chromeDriver.FindElements(by);
+    public ReadOnlyCollection<IWebElement> FindElements(By by) => chromeDriver.FindElements(by);
 
-    protected FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver, webElement);
+    public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver, webElement);
 
     #region WaitUntil
 
     #region Func
 
-    protected static bool ElementsExists(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0;
+    public static bool ElementsExists(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0;
 
-    protected static bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed);
+    public static bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed);
 
-    protected static bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed);
+    public static bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed);
 
-    protected static bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed && x.Enabled);
+    public static bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed && x.Enabled);
 
-    protected static bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed && x.Enabled);
+    public static bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed && x.Enabled);
 
-    protected static bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Selected);
+    public static bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Selected);
 
-    protected static bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Selected);
+    public static bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Selected);
 
-    protected static bool StartsWith(string url, string check) => url.StartsWith(check);
-    protected static bool EndsWith(string url, string check) => url.EndsWith(check);
-    protected static bool Equals(string url, string check) => url.Equals(check);
-    protected static bool Contains(string url, string check) => url.Contains(check);
+    public static bool StartsWith(string url, string check) => url.StartsWith(check);
+    public static bool EndsWith(string url, string check) => url.EndsWith(check);
+    public static bool Equals(string url, string check) => url.Equals(check);
+    public static bool Contains(string url, string check) => url.Contains(check);
 
-    protected static bool NotStartsWith(string url, string check) => !url.StartsWith(check);
-    protected static bool NotEndsWith(string url, string check) => !url.EndsWith(check);
-    protected static bool NotEquals(string url, string check) => !url.Equals(check);
-    protected static bool NotContains(string url, string check) => !url.Contains(check);
+    public static bool NotStartsWith(string url, string check) => !url.StartsWith(check);
+    public static bool NotEndsWith(string url, string check) => !url.EndsWith(check);
+    public static bool NotEquals(string url, string check) => !url.Equals(check);
+    public static bool NotContains(string url, string check) => !url.Contains(check);
     #endregion Func
 
     /// <summary>
@@ -236,7 +237,7 @@ namespace TqkLibrary.SeleniumSupport
     /// <param name="delay"></param>
     /// <param name="timeout"></param>
     /// <returns></returns>
-    protected bool WaitUntilUrl(string check, Func<string,string,bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+    public bool WaitUntilUrl(string check, Func<string,string,bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
     {
       using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
       while (!timeoutToken.IsCancellationRequested)
@@ -251,10 +252,10 @@ namespace TqkLibrary.SeleniumSupport
       return false;
     }
 
-    protected ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+    public ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
     => WaitUntil_(chromeDriver, by, func, isThrow, delay, timeout);
 
-    protected ReadOnlyCollection<IWebElement> WaitUntil(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+    public ReadOnlyCollection<IWebElement> WaitUntil(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
     => WaitUntil_(webElement, by, func, isThrow, delay, timeout);
 
     private ReadOnlyCollection<IWebElement> WaitUntil_(ISearchContext searchContext, By by, Func<ReadOnlyCollection<IWebElement>, bool> func,
@@ -284,7 +285,7 @@ namespace TqkLibrary.SeleniumSupport
     #endregion WaitUntil
 
     #region JSDropFile
-    protected void JsDropFile(string file, IWebElement webElement, int offsetX, int offsetY)
+    public void JsDropFile(string file, IWebElement webElement, int offsetX, int offsetY)
     {
       IWebElement input = (IWebElement)chromeDriver.ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
       input.SendKeys(file);
@@ -294,17 +295,17 @@ namespace TqkLibrary.SeleniumSupport
 
     #region JsClick
 
-    protected void JsDoubleClick(IWebElement webElement) => chromeDriver.ExecuteScript(@"var evt = document.createEvent('MouseEvents');
+    public void JsDoubleClick(IWebElement webElement) => chromeDriver.ExecuteScript(@"var evt = document.createEvent('MouseEvents');
 evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0,null);
 arguments[0].dispatchEvent(evt);", webElement);
 
-    protected void JsClick(IWebElement webElement) => chromeDriver.ExecuteScript("arguments[0].click();", webElement);
+    public void JsClick(IWebElement webElement) => chromeDriver.ExecuteScript("arguments[0].click();", webElement);
 
     #endregion JsClick
 
-    protected void JsScrollIntoView(IWebElement webElement) => chromeDriver.ExecuteScript("arguments[0].scrollIntoView();", webElement);
+    public void JsScrollIntoView(IWebElement webElement) => chromeDriver.ExecuteScript("arguments[0].scrollIntoView();", webElement);
 
-    protected void JsSetInputText(IWebElement webElement, string text) => chromeDriver.ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
+    public void JsSetInputText(IWebElement webElement, string text) => chromeDriver.ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
   }
 }
 

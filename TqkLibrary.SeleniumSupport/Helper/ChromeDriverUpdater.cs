@@ -18,7 +18,7 @@ namespace TqkLibrary.SeleniumSupport
 
     public static async Task<int> Download(string folderLocation, int MajorPart)
     {
-      string path = GetPath();
+      string path = GetChromePath();
       var version = GetChromeVersion(path);
       if (version.FileMajorPart > MajorPart)
       {
@@ -30,7 +30,7 @@ namespace TqkLibrary.SeleniumSupport
       return version.FileMajorPart;
     }
 
-    internal static string GetPath()
+    public static string GetChromePath()
     {
       //Path originates from here: https://chromedriver.chromium.org/downloads/version-selection            
       string chrome64 = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";

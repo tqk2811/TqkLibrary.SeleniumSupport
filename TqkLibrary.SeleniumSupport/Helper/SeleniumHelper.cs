@@ -46,5 +46,12 @@ namespace TqkLibrary.SeleniumSupport
       chromeOptions.AddArguments("--proxy-server=" + string.Format("http://{0}:{1}", host, port));
       return chromeOptions;
     }
+
+    public static ChromeOptions AppMode(this ChromeOptions chromeOptions, string url)
+    {
+      if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
+      chromeOptions.AddArguments("--app=" + url);
+      return chromeOptions;
+    }
   }
 }
