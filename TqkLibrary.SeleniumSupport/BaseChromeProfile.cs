@@ -237,18 +237,18 @@ namespace TqkLibrary.SeleniumSupport
     /// <param name="delay"></param>
     /// <param name="timeout"></param>
     /// <returns></returns>
-    public bool WaitUntilUrl(string check, Func<string,string,bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+    public bool WaitUntilUrl(Func<string,bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
     {
       using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
       while (!timeoutToken.IsCancellationRequested)
       {
-        if (func(chromeDriver.Url, check)) return true;
+        if (func(chromeDriver.Url)) return true;
         if (tokenSource != null) Task.Delay(delay, tokenSource.Token).Wait();
         else Task.Delay(delay, timeoutToken.Token).Wait();
 
         tokenSource?.Token.ThrowIfCancellationRequested();
       }
-      if (isThrow) throw new ChromeAutoException($"WaitUntilUrl failed: {check}");
+      if (isThrow) throw new ChromeAutoException($"WaitUntilUrl failed");
       return false;
     }
 
