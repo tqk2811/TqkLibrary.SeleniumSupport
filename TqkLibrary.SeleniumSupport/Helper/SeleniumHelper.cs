@@ -53,5 +53,10 @@ namespace TqkLibrary.SeleniumSupport
       chromeOptions.AddArguments("--app=" + url);
       return chromeOptions;
     }
+
+    public static void RemoveNavigatorWebdriver(this ChromeDriver driver)
+    {
+      driver.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+    }
   }
 }

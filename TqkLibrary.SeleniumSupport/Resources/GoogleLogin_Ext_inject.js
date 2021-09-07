@@ -14,6 +14,7 @@ window.addEventListener('load', function () {
 	if (!window.location.href.includes("accounts.google.com")) closeChrome();
 });
 function RunLogin() {
+	if (window.location.href.includes("/disabled/explanation")) closeChrome();//account banned
 	switch (step) {
 		case 0: {
 			if (document.body.innerHTML.includes(g_acc.email)) {
