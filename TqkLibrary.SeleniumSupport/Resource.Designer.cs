@@ -19,7 +19,7 @@ namespace TqkLibrary.SeleniumSupport {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resource {
@@ -67,6 +67,80 @@ namespace TqkLibrary.SeleniumSupport {
         ///	}
         ///});.
         /// </summary>
+        internal static string Control_Ext_background {
+            get {
+                return ResourceManager.GetString("Control_Ext_background", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to var g_acc = {
+        ///	email: &quot;{email}&quot;,
+        ///	pass: &quot;{pass}&quot;,
+        ///	recovery: &quot;{recovery}&quot;
+        ///};
+        ///var step = 0;
+        ///var timeout = Number(&quot;{timeout}&quot;);
+        ///var intervalTime = Number(&quot;{intervalTime}&quot;);
+        ///
+        ///window.addEventListener(&apos;load&apos;, function () {
+        ///	window.setInterval(RunLogin, intervalTime);
+        ///	window.setTimeout(closeChrome, timeout);
+        ///	if (window.location.href.includes(&quot;myaccount.google.com&quot;)) closeChrome();
+        ///	if (!window.location.href.includes(&quot;accounts.google.com&quot;)) closeChrome();
+        ///});
+        ///function RunLogin() {
+        ///	if (step &gt;= 2  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Control_Ext_inject {
+            get {
+                return ResourceManager.GetString("Control_Ext_inject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;name&quot;: &quot;Auto Login Google&quot;,
+        ///  &quot;description&quot;: &quot;Auto Login Google.&quot;,
+        ///  &quot;version&quot;: &quot;0.0.1&quot;,
+        ///  &quot;permissions&quot;: [
+        ///    &quot;&lt;all_urls&gt;&quot;,
+        ///    &quot;activeTab&quot;,
+        ///    &quot;tabs&quot;
+        ///  ],
+        ///  &quot;background&quot;: {
+        ///    &quot;scripts&quot;: [
+        ///      &quot;/background.js&quot;
+        ///    ],
+        ///    &quot;persistent&quot;: true
+        ///  },
+        ///  &quot;manifest_version&quot;: 2,
+        ///  &quot;content_scripts&quot;: [
+        ///    {
+        ///      &quot;run_at&quot;: &quot;document_idle&quot;,
+        ///      &quot;matches&quot;: [
+        ///        &quot;https://*.google.com/*&quot;
+        ///      ],
+        ///      &quot;js&quot;: [
+        ///        &quot;/inject.js&quot;
+        ///      ]
+        ///    }
+        ///  ]
+        ///}.
+        /// </summary>
+        internal static string Control_Ext_manifest {
+            get {
+                return ResourceManager.GetString("Control_Ext_manifest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to chrome.runtime.onMessage.addListener(function (message, sender, callback) {
+        ///	if (message &amp;&amp; message == &quot;close_tab_call&quot;) {
+        ///		chrome.tabs.remove(sender.tab.id, function () {});
+        ///	}
+        ///});.
+        /// </summary>
         internal static string GoogleLogin_Ext_background {
             get {
                 return ResourceManager.GetString("GoogleLogin_Ext_background", resourceCulture);
@@ -90,7 +164,7 @@ namespace TqkLibrary.SeleniumSupport {
         ///	if (!window.location.href.includes(&quot;accounts.google.com&quot;)) closeChrome();
         ///});
         ///function RunLogin() {
-        ///	switch (step)  [rest of string was truncated]&quot;;.
+        ///	if (step &gt;= 2  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GoogleLogin_Ext_inject {
             get {
@@ -135,7 +209,20 @@ namespace TqkLibrary.SeleniumSupport {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to var target = arguments[0],
+        ///    offsetX = arguments[1],
+        ///    offsetY = arguments[2],
+        ///    document = target.ownerDocument || document,
+        ///    window = document.defaultView || window;
+        ///
+        ///var input = document.createElement(&apos;INPUT&apos;);
+        ///input.type = &apos;file&apos;;
+        ///input.style.display = &apos;none&apos;;
+        ///input.onchange = function () {
+        ///    var rect = target.getBoundingClientRect(),
+        ///        x = rect.left + (offsetX || (rect.width &gt;&gt; 1)),
+        ///        y = rect.top + (offsetY || (rect.height &gt;&gt; 1)),
+        ///        dataTransfer = { files: thi [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string JsDropFile {
             get {
@@ -150,21 +237,20 @@ namespace TqkLibrary.SeleniumSupport {
         ///		singleProxy: {
         ///			scheme: &quot;http&quot;,
         ///			host: &quot;{host}&quot;,
-        ///			port: &quot;{port}&quot;
+        ///			port: {port}
         ///		},
         ///		bypassList: [&quot;localhost&quot;]
         ///	}
         ///};
+        ///var authCre = {
+        ///	authCredentials: {
+        ///		username: &quot;{username}&quot;,
+        ///		password: &quot;{password}&quot;
+        ///	}
+        ///};
+        ///
         ///chrome.proxy.settings.set({value: config,scope: &quot;regular&quot;}, function () {});
-        ///function callbackFn(details) {
-        ///	return {
-        ///		authCredentials: {
-        ///			username: &quot;{username}&quot;,
-        ///			password: &quot;{password}&quot;
-        ///		}
-        ///	};
-        ///}
-        ///chrome.webRequest.onAuthRequired.addListener(callbackFn, {urls: [&quot;&lt;all_urls&gt;&quot;]}, [&apos;blocking&apos;]);.
+        ///chrome.webRequest.onAuthRequired.addListener(function callbackFn(details) { return authCre; }, { urls: [&quot;&lt;all_urls&gt;&quot;] }, [&apos;blocking&apos;]);.
         /// </summary>
         internal static string ProxyLogin_Ext_background {
             get {
