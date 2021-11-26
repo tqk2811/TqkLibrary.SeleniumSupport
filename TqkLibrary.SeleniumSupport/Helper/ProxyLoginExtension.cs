@@ -36,6 +36,9 @@ namespace TqkLibrary.SeleniumSupport
             }
             else
             {
+                if (Directory.Exists(path)) try { Directory.Delete(path); } catch { }
+                Directory.CreateDirectory(path);
+
                 File.WriteAllText(Path.Combine(path, "background.js"), background_);
                 File.WriteAllText(Path.Combine(path, "manifest.json"), Resource.ProxyLogin_Ext_manifest);
             }
