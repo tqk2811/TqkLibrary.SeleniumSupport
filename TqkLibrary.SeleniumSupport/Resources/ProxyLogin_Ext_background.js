@@ -16,5 +16,15 @@ var authCre = {
 	}
 };
 
-chrome.proxy.settings.set({value: config,scope: "regular"}, function () {});
-chrome.webRequest.onAuthRequired.addListener(function callbackFn(details) { return authCre; }, { urls: ["<all_urls>"] }, ['blocking']);
+chrome.proxy.settings.set({ value: config, scope: "regular" }, function () { });
+chrome.proxy.onProxyError.addListener(function (details) {
+	console.log(details);
+});
+chrome.webRequest.onAuthRequired.addListener(
+	function callbackFn(details) {
+		console.log(details);
+		return authCre;
+	},
+	{ urls: ["<all_urls>"] },
+	['blocking']
+);
