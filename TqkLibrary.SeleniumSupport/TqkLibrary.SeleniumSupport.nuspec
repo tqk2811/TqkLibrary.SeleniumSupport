@@ -7,7 +7,7 @@
 		<description>my private lib</description>
 		<authors>tqk2811</authors>
 		<projectUrl>https://github.com/tqk2811/TqkLibrary.SeleniumSupport</projectUrl>
-		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.SeleniumSupport.git" branch="$branch$" commit="$commit$"/>
+		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.SeleniumSupport.git"/>
 		<dependencies>
 			<dependency id="Microsoft.Win32.Registry" version="5.0.0" />
 			<dependency id="System.Net.Http" version="4.3.4" />
