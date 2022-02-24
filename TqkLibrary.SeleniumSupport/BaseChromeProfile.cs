@@ -174,18 +174,50 @@ namespace TqkLibrary.SeleniumSupport
             }
             return false;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void Stop() => tokenSource?.Cancel();
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
         public void Delay(int min, int max)
         {
             Task.Delay(rd.Next(min, max), tokenSource.Token).Wait();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="time"></param>
         public void Delay(int time)
         {
             Task.Delay(time, tokenSource.Token).Wait();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public Task DelayAsync(int time)
+        {
+            return Task.Delay(time, tokenSource.Token);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public Task DelayAsync(int min, int max)
+        {
+            return Task.Delay(rd.Next(min, max), tokenSource.Token);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
         public void SaveHtml(string path)
         {
             if (IsOpenChrome)
@@ -195,11 +227,22 @@ namespace TqkLibrary.SeleniumSupport
                 streamWriter.Flush();
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="by"></param>
         public void SwitchToFrame(By by) => chromeDriver.SwitchTo().Frame(WaitUntil(by, ElementsExists, true).First());
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="by"></param>
+        /// <returns></returns>
         public ReadOnlyCollection<IWebElement> FindElements(By by) => chromeDriver.FindElements(by);
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
         public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver, webElement);
 
         #region WaitUntil
@@ -234,7 +277,6 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="url"></param>
         /// <param name="func">(string url, string check)</param>
         /// <param name="isThrow"></param>
         /// <param name="delay"></param>
@@ -255,9 +297,50 @@ namespace TqkLibrary.SeleniumSupport
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="isThrow"></param>
+        /// <param name="delay"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        /// <exception cref="ChromeAutoException"></exception>
+        public async Task<bool> WaitUntilUrlAsync(Func<string, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+        {
+            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+            while (!timeoutToken.IsCancellationRequested)
+            {
+                if (func(chromeDriver.Url)) return true;
+                if (tokenSource != null) await Task.Delay(delay, tokenSource.Token);
+                else await Task.Delay(delay, timeoutToken.Token);
+
+                tokenSource?.Token.ThrowIfCancellationRequested();
+            }
+            if (isThrow) throw new ChromeAutoException($"WaitUntilUrl failed");
+            return false;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="by"></param>
+        /// <param name="func"></param>
+        /// <param name="isThrow"></param>
+        /// <param name="delay"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
         public ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
         => WaitUntil_(chromeDriver, by, func, isThrow, delay, timeout);
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="by"></param>
+        /// <param name="func"></param>
+        /// <param name="isThrow"></param>
+        /// <param name="delay"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
         public ReadOnlyCollection<IWebElement> WaitUntil(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
         => WaitUntil_(webElement, by, func, isThrow, delay, timeout);
 
@@ -279,6 +362,47 @@ namespace TqkLibrary.SeleniumSupport
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="by"></param>
+        /// <param name="func"></param>
+        /// <param name="isThrow"></param>
+        /// <param name="delay"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+        => WaitUntilAsync_(chromeDriver, by, func, isThrow, delay, timeout);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="by"></param>
+        /// <param name="func"></param>
+        /// <param name="isThrow"></param>
+        /// <param name="delay"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+        => WaitUntilAsync_(webElement, by, func, isThrow, delay, timeout);
+
+        private async Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync_(ISearchContext searchContext, By by, Func<ReadOnlyCollection<IWebElement>, bool> func,
+          bool isThrow = true, int delay = 200, int timeout = 10000)
+        {
+            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+            while (!timeoutToken.IsCancellationRequested)
+            {
+                var eles = searchContext.FindElements(by);
+                try { if (func(eles)) return eles; } catch { }
+                if (tokenSource != null) await Task.Delay(delay, tokenSource.Token);
+                else await Task.Delay(delay, timeoutToken.Token);
+
+                tokenSource?.Token.ThrowIfCancellationRequested();
+            }
+            if (isThrow) throw new ChromeAutoException(by.ToString());
+            return null;
+        }
+
         //protected string WaitUntilUrl(string q,)
         //{
 
@@ -288,6 +412,13 @@ namespace TqkLibrary.SeleniumSupport
         #endregion WaitUntil
 
         #region JSDropFile
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="webElement"></param>
+        /// <param name="offsetX"></param>
+        /// <param name="offsetY"></param>
         public void JsDropFile(string file, IWebElement webElement, int offsetX, int offsetY)
         {
             IWebElement input = (IWebElement)chromeDriver.ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
@@ -297,17 +428,32 @@ namespace TqkLibrary.SeleniumSupport
         #endregion JSDropFile
 
         #region JsClick
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
         public void JsDoubleClick(IWebElement webElement) => chromeDriver.ExecuteScript(@"var evt = document.createEvent('MouseEvents');
 evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0,null);
 arguments[0].dispatchEvent(evt);", webElement);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
         public void JsClick(IWebElement webElement) => chromeDriver.ExecuteScript("arguments[0].click();", webElement);
 
         #endregion JsClick
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
         public void JsScrollIntoView(IWebElement webElement) => chromeDriver.ExecuteScript("arguments[0].scrollIntoView();", webElement);
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="text"></param>
         public void JsSetInputText(IWebElement webElement, string text) => chromeDriver.ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
     }
 }
