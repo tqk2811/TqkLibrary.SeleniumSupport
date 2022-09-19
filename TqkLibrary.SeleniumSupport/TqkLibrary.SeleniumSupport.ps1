@@ -5,6 +5,7 @@ $key=$env:nugetKey
 $buildDay=[DateTime]::Now.ToString("yyyyMMdd")
 $buildIndex="00"
 $p="buildDay=$($buildDay);buildIndex=$($buildIndex)".Trim()
+$build="Release"
 
 function RunCommand
 {
@@ -30,9 +31,9 @@ function NugetPack
     {
         Write-Host "NugetPack $($args[$i])"
 
-        $result = RunCommand "Remove-Item -Recurse -Force .\bin\Release\**" `
-            "dotnet build .\$($args[$i]).csproj -c Release" `
-            "nuget pack .\$($args[$i]).nuspec -OutputDirectory .\bin\Release -p 'id=$($args[$i]);$($p)'"
+        $result = RunCommand "Remove-Item -Recurse -Force .\bin\$($build)\**" `
+            "dotnet build .\$($args[$i]).csproj -c $($build)" `
+            "nuget pack .\$($args[$i]).nuspec -Symbols -OutputDirectory .\bin\$($build) -p 'id=$($args[$i]);$($p)'"
 
         if($result) {
             Write-Host "$($args[$i]) success"
@@ -52,7 +53,7 @@ function NugetPush
     {
         Write-Host "NugetPush $($args[$i])"
 
-        iex "dotnet nuget push .\bin\Release\*.nupkg --api-key $($key) --source https://api.nuget.org/v3/index.json"
+        iex "dotnet nuget push .\bin\Release\*.symbols.nupkg --api-key $($key) --source https://api.nuget.org/v3/index.json"
     }
 }
 

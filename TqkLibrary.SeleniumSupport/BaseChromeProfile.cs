@@ -82,7 +82,7 @@ namespace TqkLibrary.SeleniumSupport
             options.AddArgument("--disable-infobars");
             options.AddArgument("--ignore-certificate-errors");
             options.AddArgument("--allow-running-insecure-content");
-            options.AddAdditionalCapability("useAutomationExtension", false);
+            options.AddAdditionalOption("useAutomationExtension", false);
             options.AddExcludedArgument("enable-automation");
             //options.c
             //disable ask password
@@ -97,7 +97,7 @@ namespace TqkLibrary.SeleniumSupport
             ChromeOptions chromeOptions = new ChromeOptions();
             chromeOptionConfig.Arguments?.ForEach(x => chromeOptions.AddArgument(x));
             chromeOptionConfig.ExcludedArguments?.ForEach(x => chromeOptions.AddExcludedArgument(x));
-            chromeOptionConfig.AdditionalCapabilitys?.ForEach(x => chromeOptions.AddAdditionalCapability(x.Name, x.Value));
+            chromeOptionConfig.AdditionalCapabilitys?.ForEach(x => chromeOptions.AddAdditionalOption(x.Name, x.Value));
             chromeOptionConfig.UserProfilePreferences?.ForEach(x => chromeOptions.AddUserProfilePreference(x.Name, x.Value));
             if (chromeOptionConfig.UserAgents?.Count > 0)
             {
