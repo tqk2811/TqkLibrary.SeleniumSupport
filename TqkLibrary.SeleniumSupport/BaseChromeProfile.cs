@@ -12,29 +12,68 @@ using TqkLibrary.SeleniumSupport.Helper;
 
 namespace TqkLibrary.SeleniumSupport
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="change"></param>
     public delegate void RunningStateChange(bool change);
-
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class BaseChromeProfile
     {
+        /// <summary>
+        /// 
+        /// </summary>
         protected static readonly Random rd = new Random();
+        /// <summary>
+        /// 
+        /// </summary>
         protected ChromeDriverService service;
+        /// <summary>
+        /// 
+        /// </summary>
         public string ChromeDriverPath { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool HideCommandPromptWindow { get; set; } = true;
         private CancellationTokenRegistration? cancellationTokenRegistration;
+        /// <summary>
+        /// 
+        /// </summary>
         public TimeSpan CommandTimeout { get; set; } = TimeSpan.FromMinutes(3);
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsOpenChrome
         {
             get { return chromeDriver != null || (process != null && !process.HasExited); }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public CancellationToken Token { get { return tokenSource.Token; } }
-
+        /// <summary>
+        /// 
+        /// </summary>
         protected ChromeDriver chromeDriver { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
         protected CancellationTokenSource tokenSource { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
         protected Process process { get; private set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public event RunningStateChange StateChange;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ChromeDriverPath"></param>
         public BaseChromeProfile(string ChromeDriverPath)
         {
             if (string.IsNullOrEmpty(ChromeDriverPath))
@@ -91,9 +130,12 @@ namespace TqkLibrary.SeleniumSupport
             return options;
         }
 
-        public ChromeOptions LoadFromJsonFile(string filePath)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ChromeOptions LoadFromConfig(ChromeOptionConfig chromeOptionConfig)
         {
-            ChromeOptionConfig chromeOptionConfig = JsonConvert.DeserializeObject<ChromeOptionConfig>(File.ReadAllText(filePath));
             ChromeOptions chromeOptions = new ChromeOptions();
             chromeOptionConfig.Arguments?.ForEach(x => chromeOptions.AddArgument(x));
             chromeOptionConfig.ExcludedArguments?.ForEach(x => chromeOptions.AddExcludedArgument(x));
@@ -106,6 +148,13 @@ namespace TqkLibrary.SeleniumSupport
             return chromeOptions;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chromeOptions"></param>
+        /// <param name="chromeDriverService"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public bool OpenChrome(ChromeOptions chromeOptions, ChromeDriverService chromeDriverService = null, CancellationToken cancellationToken = default)
         {
             if (!IsOpenChrome)
@@ -119,13 +168,31 @@ namespace TqkLibrary.SeleniumSupport
 
                 tokenSource = new CancellationTokenSource();
                 cancellationTokenRegistration = cancellationToken.Register(() => { if (tokenSource?.IsCancellationRequested == false) tokenSource.Cancel(); });
-                chromeDriver = new ChromeDriver(service, chromeOptions, CommandTimeout);
-                StateChange?.Invoke(IsOpenChrome);
+                try
+                {
+                    chromeDriver = new ChromeDriver(service, chromeOptions, CommandTimeout);
+                }
+                catch
+                {
+                    service.Dispose();
+                    service = null;
+                    return false;
+                }
+                finally
+                {
+                    StateChange?.Invoke(IsOpenChrome);
+                }
                 return true;
             }
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Arguments"></param>
+        /// <param name="ChromePath"></param>
+        /// <returns></returns>
         public Process OpenChromeWithoutSelenium(string Arguments, string ChromePath = null)
         {
             if (!IsOpenChrome)
@@ -146,9 +213,14 @@ namespace TqkLibrary.SeleniumSupport
 
         private void Process_Exited(object sender, EventArgs e)
         {
+            this.process = null;
             StateChange?.Invoke(IsOpenChrome);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool CloseChrome()
         {
             if (IsOpenChrome)
