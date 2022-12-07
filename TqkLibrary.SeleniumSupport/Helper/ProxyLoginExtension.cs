@@ -7,19 +7,19 @@ namespace TqkLibrary.SeleniumSupport
 {
     public static class ProxyLoginExtension
     {
-        public static void GenerateExtension(string path, string host, string port, string username, string password, bool isPacked = true)
+        public static void GenerateExtension(string path, string host, string port, string username = null, string password = null, bool isPacked = true)
         {
             if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
             if (string.IsNullOrEmpty(host)) throw new ArgumentNullException(nameof(host));
             if (string.IsNullOrEmpty(port)) throw new ArgumentNullException(nameof(port));
-            if (string.IsNullOrEmpty(username)) throw new ArgumentNullException(nameof(username));
-            if (string.IsNullOrEmpty(password)) throw new ArgumentNullException(nameof(password));
+            //if (string.IsNullOrEmpty(username)) throw new ArgumentNullException(nameof(username));
+            //if (string.IsNullOrEmpty(password)) throw new ArgumentNullException(nameof(password));
 
             string background_ = Resource.ProxyLogin_Ext_background
                 .Replace("{host}", host)
                 .Replace("{port}", port.ToString())
-                .Replace("{username}", username)
-                .Replace("{password}", password);
+                .Replace("{username}", username ?? string.Empty)
+                .Replace("{password}", password ?? string.Empty);
 
             if (isPacked)
             {
@@ -44,7 +44,7 @@ namespace TqkLibrary.SeleniumSupport
             }
         }
 
-        public static void GenerateExtension(string filepath, string host, int port, string username, string password, bool isPacked = true)
+        public static void GenerateExtension(string filepath, string host, int port, string username = null, string password = null, bool isPacked = true)
           => GenerateExtension(filepath, host, port.ToString(), username, password, isPacked);
     }
 }
