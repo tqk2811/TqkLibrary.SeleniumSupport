@@ -5,58 +5,64 @@ using System.Collections.ObjectModel;
 
 namespace TqkLibrary.SeleniumSupport
 {
-  public static class SeleniumHelper
-  {
-    public static ReadOnlyCollection<IWebElement> ThrowIfNull(this ReadOnlyCollection<IWebElement> readOnlyCollection, string throwText)
+    public static class SeleniumHelper
     {
-      if (null == readOnlyCollection) throw new ChromeAutoException(throwText);
-      return readOnlyCollection;
-    }
+        public static ReadOnlyCollection<IWebElement> ThrowIfNull(this ReadOnlyCollection<IWebElement> readOnlyCollection, string throwText)
+        {
+            if (null == readOnlyCollection) throw new ChromeAutoException(throwText);
+            return readOnlyCollection;
+        }
 
-    public static ReadOnlyCollection<IWebElement> ThrowIfNullOrCountZero(this ReadOnlyCollection<IWebElement> readOnlyCollection, string throwText)
-    {
-      if (null == readOnlyCollection || readOnlyCollection.Count == 0) throw new ChromeAutoException(throwText);
-      return readOnlyCollection;
-    }
+        public static ReadOnlyCollection<IWebElement> ThrowIfNullOrCountZero(this ReadOnlyCollection<IWebElement> readOnlyCollection, string throwText)
+        {
+            if (null == readOnlyCollection || readOnlyCollection.Count == 0) throw new ChromeAutoException(throwText);
+            return readOnlyCollection;
+        }
 
-    public static ChromeOptions AddProfilePath(this ChromeOptions chromeOptions, string ProfilePath)
-    {
-      if (string.IsNullOrEmpty(ProfilePath)) throw new ArgumentNullException(nameof(ProfilePath));
-      chromeOptions.AddArgument("--user-data-dir=" + ProfilePath);
-      return chromeOptions;
-    }
+        public static ChromeOptions AddProfilePath(this ChromeOptions chromeOptions, string ProfilePath)
+        {
+            if (string.IsNullOrEmpty(ProfilePath)) throw new ArgumentNullException(nameof(ProfilePath));
+            chromeOptions.AddArgument("--user-data-dir=" + ProfilePath);
+            return chromeOptions;
+        }
 
-    public static ChromeOptions AddUserAgent(this ChromeOptions chromeOptions, string UA)
-    {
-      if (string.IsNullOrEmpty(UA)) throw new ArgumentNullException(nameof(UA));
-      chromeOptions.AddArgument("--user-agent=" + UA);
-      return chromeOptions;
-    }
+        public static ChromeOptions AddUserAgent(this ChromeOptions chromeOptions, string UA)
+        {
+            if (string.IsNullOrEmpty(UA)) throw new ArgumentNullException(nameof(UA));
+            chromeOptions.AddArgument("--user-agent=" + UA);
+            return chromeOptions;
+        }
 
-    public static ChromeOptions AddProxy(this ChromeOptions chromeOptions, string proxy)
-    {
-      if (string.IsNullOrEmpty(proxy)) throw new ArgumentNullException(nameof(proxy));
-      chromeOptions.AddArguments("--proxy-server=" + string.Format("http://{0}", proxy));
-      return chromeOptions;
-    }
+        public static ChromeOptions AddProxy(this ChromeOptions chromeOptions, string proxy)
+        {
+            if (string.IsNullOrEmpty(proxy)) throw new ArgumentNullException(nameof(proxy));
+            chromeOptions.AddArguments("--proxy-server=" + string.Format("http://{0}", proxy));
+            return chromeOptions;
+        }
 
-    public static ChromeOptions AddProxy(this ChromeOptions chromeOptions, string host, int port)
-    {
-      if (string.IsNullOrEmpty(host)) throw new ArgumentNullException(nameof(host));
-      chromeOptions.AddArguments("--proxy-server=" + string.Format("http://{0}:{1}", host, port));
-      return chromeOptions;
-    }
+        public static ChromeOptions AddProxy(this ChromeOptions chromeOptions, string host, int port)
+        {
+            if (string.IsNullOrEmpty(host)) throw new ArgumentNullException(nameof(host));
+            chromeOptions.AddArguments("--proxy-server=" + string.Format("http://{0}:{1}", host, port));
+            return chromeOptions;
+        }
 
-    public static ChromeOptions AppMode(this ChromeOptions chromeOptions, string url)
-    {
-      if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
-      chromeOptions.AddArguments("--app=" + url);
-      return chromeOptions;
-    }
+        public static ChromeOptions AppMode(this ChromeOptions chromeOptions, string url)
+        {
+            if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
+            chromeOptions.AddArguments("--app=" + url);
+            return chromeOptions;
+        }
 
-    public static void RemoveNavigatorWebdriver(this ChromeDriver driver)
-    {
-      driver.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+        public static void RemoveNavigatorWebdriver(this ChromeDriver driver)
+        {
+            driver.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+        }
+
+        public static ChromeOptions ForceDeviceScaleFactor(this ChromeOptions chromeOptions, double n)
+        {
+            chromeOptions.AddArgument($"--force-device-scale-factor={n}");
+            return chromeOptions;
+        }
     }
-  }
 }

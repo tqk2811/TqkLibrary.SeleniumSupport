@@ -2,18 +2,44 @@
 
 namespace TqkLibrary.SeleniumSupport
 {
-  internal class ChromeOptionConfig
-  {
-    public List<string> UserAgents { get; set; }
-    public List<string> Arguments { get; set; }
-    public List<ConfigValue> AdditionalCapabilitys { get; set; }
-    public List<string> ExcludedArguments { get; set; }
-    public List<ConfigValue> UserProfilePreferences { get; set; }
-  }
-
-  internal class ConfigValue
-  {
-    public string Name { get; set; }
-    public string Value { get; set; }
-  }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ChromeOptionConfig
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> UserAgents { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> Arguments { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<ConfigValue> AdditionalCapabilitys { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> ExcludedArguments { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<ConfigValue> UserProfilePreferences { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ConfigValue
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Value { get; set; }
+    }
 }
