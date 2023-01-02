@@ -5,8 +5,15 @@ using System.Text;
 
 namespace TqkLibrary.SeleniumSupport
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ProxyLoginExtension
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         public static void GenerateExtension(string path, string host, string port, string username = null, string password = null, bool isPacked = true)
         {
             if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
@@ -44,6 +51,10 @@ namespace TqkLibrary.SeleniumSupport
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         public static void GenerateExtension(string filepath, string host, int port, string username = null, string password = null, bool isPacked = true)
           => GenerateExtension(filepath, host, port.ToString(), username, password, isPacked);
     }
