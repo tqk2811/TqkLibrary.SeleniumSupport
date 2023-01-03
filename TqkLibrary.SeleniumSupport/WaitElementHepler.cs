@@ -19,7 +19,10 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         public int Delay { get; set; } = 500;
-
+        /// <summary>
+        /// When timeout is less than or equal zero
+        /// </summary>
+        public int DefaultTimeout { get; set; } = 30000;
         readonly ChromeDriver chromeDriver;
         readonly CancellationToken cancellationToken;
 
@@ -45,9 +48,9 @@ namespace TqkLibrary.SeleniumSupport
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public bool WaitUntilUrl(Func<string, bool> func, bool isThrow = true, int timeout = 10000)
+		public bool WaitUntilUrl(Func<string, bool> func, bool isThrow = true, int timeout = 0)
         {
-            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout <= 0 ? DefaultTimeout : timeout);
             while (!timeoutToken.IsCancellationRequested)
             {
                 if (func(chromeDriver.Url)) return true;
@@ -62,9 +65,9 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ChromeAutoException"></exception>
-        public async Task<bool> WaitUntilUrlAsync(Func<string, bool> func, bool isThrow = true, int timeout = 10000)
+        public async Task<bool> WaitUntilUrlAsync(Func<string, bool> func, bool isThrow = true, int timeout = 0)
         {
-            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout <= 0 ? DefaultTimeout : timeout);
             while (!timeoutToken.IsCancellationRequested)
             {
                 if (func(chromeDriver.Url)) return true;
@@ -78,20 +81,20 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 10000)
+        public ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
             => WaitUntil_(chromeDriver, by, func, isThrow, timeout);
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public ReadOnlyCollection<IWebElement> WaitUntil(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 10000)
+        public ReadOnlyCollection<IWebElement> WaitUntil(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
             => WaitUntil_(webElement, by, func, isThrow, timeout);
 
         private ReadOnlyCollection<IWebElement> WaitUntil_(ISearchContext searchContext, By by, Func<ReadOnlyCollection<IWebElement>, bool> func,
-          bool isThrow = true, int delay = 200, int timeout = 10000)
+          bool isThrow = true, int delay = 200, int timeout = 0)
         {
-            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout <= 0 ? DefaultTimeout : timeout);
             while (!timeoutToken.IsCancellationRequested)
             {
                 var eles = searchContext.FindElements(by);
@@ -107,19 +110,19 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 10000)
+        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
             => WaitUntilAsync_(chromeDriver, by, func, isThrow, timeout);
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 10000)
+        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
             => WaitUntilAsync_(webElement, by, func, isThrow, timeout);
 
         private async Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync_(ISearchContext searchContext, By by, Func<ReadOnlyCollection<IWebElement>, bool> func,
-          bool isThrow = true, int timeout = 10000)
+          bool isThrow = true, int timeout = 0)
         {
-            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+            using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout <= 0 ? DefaultTimeout : timeout);
             while (!timeoutToken.IsCancellationRequested)
             {
                 var eles = searchContext.FindElements(by);
