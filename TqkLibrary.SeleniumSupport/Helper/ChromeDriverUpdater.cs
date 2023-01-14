@@ -120,6 +120,7 @@ namespace TqkLibrary.SeleniumSupport
             {
                 Directory.Delete(folderLocation, true);
             }
+            Directory.CreateDirectory(folderLocation);
             string zipPath = Path.Combine(folderLocation, "chromedriver.zip");
 
             using (FileStream fileStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
