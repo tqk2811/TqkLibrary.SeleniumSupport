@@ -19,28 +19,28 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElements"></param>
         /// <returns></returns>
         public static async Task<IWebElement> FirstAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements).First();
+            => (await webElements)?.First();
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElements"></param>
         /// <returns></returns>
         public static async Task<IWebElement> FirstOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements).FirstOrDefault();
+            => (await webElements)?.FirstOrDefault();
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElements"></param>
         /// <returns></returns>
         public static async Task<IWebElement> LastAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements).Last();
+            => (await webElements)?.Last();
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElements"></param>
         /// <returns></returns>
         public static async Task<IWebElement> LastOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements).LastOrDefault();
+            => (await webElements)?.LastOrDefault();
 
         /// <summary>
         /// 

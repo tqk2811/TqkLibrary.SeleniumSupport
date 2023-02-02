@@ -102,7 +102,7 @@ namespace TqkLibrary.SeleniumSupport
                 Task.Delay(delay, cancellationToken).Wait();
             }
             if (isThrow) throw new ChromeAutoException(by.ToString());
-            return null;
+            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
         }
 
 
@@ -129,8 +129,8 @@ namespace TqkLibrary.SeleniumSupport
                 try { if (func(eles)) return eles; } catch { }
                 await Task.Delay(Delay, cancellationToken);
             }
-            if (isThrow) throw new ChromeAutoException(by.ToString());
-            return null;
+            if (isThrow) throw new ChromeAutoException(by.ToString()); 
+            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
         }
     }
 }
