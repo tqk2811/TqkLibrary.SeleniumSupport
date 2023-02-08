@@ -28,7 +28,7 @@ namespace TqkLibrary.SeleniumSupport
         {
             string path = GetChromePath();
             var version = GetChromeVersion(path);
-            if (version.FileMajorPart > MajorPart)
+            if (version.FileMajorPart > MajorPart || !IsChromeDriverExist(folderLocation))
             {
                 var verString = version.FileVersion;
                 var urlToDownload = await GetURLToDownload(verString, cancellationToken).ConfigureAwait(false);
@@ -38,6 +38,10 @@ namespace TqkLibrary.SeleniumSupport
             return version.FileMajorPart;
         }
 
+        static bool IsChromeDriverExist(string folderLocation)
+        {
+            return File.Exists(Path.Combine(folderLocation, "chromedriver.exe"));
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -107,10 +111,6 @@ namespace TqkLibrary.SeleniumSupport
         {
             if (string.IsNullOrEmpty(urlToDownload)) throw new ArgumentException("Unable to get url because urlToDownload is empty");
 
-            if (File.Exists(folderLocation + "\\chromedriver.zip"))
-            {
-                File.Delete(folderLocation + "\\chromedriver.zip");
-            }
 
             using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, urlToDownload);
             using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
@@ -120,7 +120,9 @@ namespace TqkLibrary.SeleniumSupport
             {
                 Directory.Delete(folderLocation, true);
             }
+
             Directory.CreateDirectory(folderLocation);
+
             string zipPath = Path.Combine(folderLocation, "chromedriver.zip");
 
             using (FileStream fileStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
