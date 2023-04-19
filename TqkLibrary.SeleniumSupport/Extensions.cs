@@ -131,5 +131,14 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElement"></param>
         /// <returns></returns>
         public static async Task SubmitAsync(this Task<IWebElement> webElement) => (await webElement).Submit();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="searchContext"></param>
+        /// <param name="cssSelector"></param>
+        /// <returns></returns>
+        public static ReadOnlyCollection<IWebElement> FindElements(this ISearchContext searchContext, string cssSelector)
+            => searchContext.FindElements(By.CssSelector(cssSelector));
     }
 }
