@@ -83,14 +83,24 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
             => WaitUntil_(chromeDriver, by, func, isThrow, timeout);
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlyCollection<IWebElement> WaitUntil(string cssSelector, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
+            => WaitUntil_(chromeDriver, By.CssSelector(cssSelector), func, isThrow, timeout);
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         public ReadOnlyCollection<IWebElement> WaitUntil(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
             => WaitUntil_(webElement, by, func, isThrow, timeout);
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlyCollection<IWebElement> WaitUntil(IWebElement webElement, string cssSelector, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
+            => WaitUntil_(webElement, By.CssSelector(cssSelector), func, isThrow, timeout);
         private ReadOnlyCollection<IWebElement> WaitUntil_(ISearchContext searchContext, By by, Func<ReadOnlyCollection<IWebElement>, bool> func,
           bool isThrow = true, int delay = 200, int timeout = 0)
         {
@@ -116,8 +126,20 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
+        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(string cssSelector, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
+            => WaitUntilAsync_(chromeDriver, By.CssSelector(cssSelector), func, isThrow, timeout);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(IWebElement webElement, By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
             => WaitUntilAsync_(webElement, by, func, isThrow, timeout);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync(IWebElement webElement, string cssSelector, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int timeout = 0)
+            => WaitUntilAsync_(webElement, By.CssSelector(cssSelector), func, isThrow, timeout);
 
         private async Task<ReadOnlyCollection<IWebElement>> WaitUntilAsync_(ISearchContext searchContext, By by, Func<ReadOnlyCollection<IWebElement>, bool> func,
           bool isThrow = true, int timeout = 0)
@@ -127,9 +149,9 @@ namespace TqkLibrary.SeleniumSupport
             {
                 var eles = searchContext.FindElements(by);
                 try { if (func(eles)) return eles; } catch { }
-                await Task.Delay(Delay, cancellationToken);
+                await Task.Delay(Delay, cancellationToken).ConfigureAwait(false);
             }
-            if (isThrow) throw new ChromeAutoException(by.ToString()); 
+            if (isThrow) throw new ChromeAutoException(by.ToString());
             return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
         }
     }
