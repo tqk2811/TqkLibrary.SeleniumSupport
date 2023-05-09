@@ -312,6 +312,11 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElement"></param>
         /// <returns></returns>
         public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver, webElement);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public TabSwitch TabSwitch(string url, bool isCloseOnDispose = true) => new TabSwitch(chromeDriver, url) { IsCloseTab = isCloseOnDispose };
 
         /// <summary>
         /// 
