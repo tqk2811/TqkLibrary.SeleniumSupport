@@ -4,19 +4,19 @@ using System;
 
 namespace TqkLibrary.SeleniumSupport
 {
-  public class FrameSwitch : IDisposable
-  {
-    private readonly ChromeDriver chromeDriver;
-
-    internal FrameSwitch(ChromeDriver chromeDriver, IWebElement webElement)
+    public class FrameSwitch : IDisposable
     {
-      this.chromeDriver = chromeDriver;
-      chromeDriver.SwitchTo().Frame(webElement ?? throw new ArgumentNullException(nameof(webElement)));
-    }
+        private readonly ChromeDriver chromeDriver;
 
-    public void Dispose()
-    {
-      chromeDriver.SwitchTo().ParentFrame();
+        internal FrameSwitch(ChromeDriver chromeDriver, IWebElement webElement)
+        {
+            this.chromeDriver = chromeDriver;
+            chromeDriver.SwitchTo().Frame(webElement ?? throw new ArgumentNullException(nameof(webElement)));
+        }
+
+        public void Dispose()
+        {
+            chromeDriver.SwitchTo().ParentFrame();
+        }
     }
-  }
 }
