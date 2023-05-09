@@ -1,7 +1,9 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace TqkLibrary.SeleniumSupport
 {
@@ -63,6 +65,16 @@ namespace TqkLibrary.SeleniumSupport
         {
             chromeOptions.AddArgument($"--force-device-scale-factor={n}");
             return chromeOptions;
+        }
+
+        public static string OpenNewTab(this ChromeDriver driver, string url)
+        {
+            if (driver is null) throw new ArgumentNullException(nameof(driver));
+            if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
+            IEnumerable<string> windows = driver.WindowHandles.ToList();
+            driver.ExecuteScript($"window.open(arguments[0], '_blank');", url);
+            IEnumerable<string> newWindows = driver.WindowHandles.ToList();
+            return newWindows.Except(windows).FirstOrDefault();
         }
     }
 }
