@@ -37,7 +37,7 @@ namespace TqkLibrary.SeleniumSupport
             this.chromeDriver = chromeDriver;
             OldWindowHandle = chromeDriver.CurrentWindowHandle;
             IEnumerable<string> handles = chromeDriver.WindowHandles.ToList();
-            this.chromeDriver.ExecuteScript($"open('{url}')");
+            this.chromeDriver.ExecuteScript($"open(arguments[0])", url);
             NewWindowHandle = chromeDriver.WindowHandles.Except(handles).FirstOrDefault();
             this.chromeDriver.SwitchTo().Window(NewWindowHandle);
         }
