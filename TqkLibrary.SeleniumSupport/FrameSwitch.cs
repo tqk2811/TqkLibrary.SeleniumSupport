@@ -4,6 +4,9 @@ using System;
 
 namespace TqkLibrary.SeleniumSupport
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class FrameSwitch : IDisposable
     {
         private readonly ChromeDriver chromeDriver;
@@ -14,6 +17,9 @@ namespace TqkLibrary.SeleniumSupport
             chromeDriver.SwitchTo().Frame(webElement ?? throw new ArgumentNullException(nameof(webElement)));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             chromeDriver.SwitchTo().ParentFrame();
