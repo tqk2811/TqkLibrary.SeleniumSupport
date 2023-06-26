@@ -323,7 +323,7 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitHelper WaitElementHepler(CancellationToken cancellationToken) => new WaitHelper(this, cancellationToken);
+        public WaitHelper WaitHepler(CancellationToken cancellationToken) => new WaitHelper(this, cancellationToken);
 
         #region WaitFunc
 
