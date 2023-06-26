@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TqkLibrary.SeleniumSupport.Helper;
+using TqkLibrary.SeleniumSupport.Helper.WaitHeplers;
 
 namespace TqkLibrary.SeleniumSupport
 {
@@ -322,7 +323,7 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementHepler WaitElementHepler(CancellationToken cancellationToken) => new WaitElementHepler(this, cancellationToken);
+        public WaitHelper WaitElementHepler(CancellationToken cancellationToken) => new WaitHelper(this, cancellationToken);
 
         #region WaitFunc
 
