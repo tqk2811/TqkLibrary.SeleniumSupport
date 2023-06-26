@@ -44,38 +44,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder UntilElementsExists() => Until(BaseChromeProfile.ElementsExists);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public WaitElementBuilder UntilAllElementsVisible() => Until(BaseChromeProfile.AllElementsVisible);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public WaitElementBuilder UntilAnyElementsVisible() => Until(BaseChromeProfile.AnyElementsVisible);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public WaitElementBuilder UntilAllElementsClickable() => Until(BaseChromeProfile.AllElementsClickable);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public WaitElementBuilder UntilAnyElementsClickable() => Until(BaseChromeProfile.AnyElementsClickable);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public WaitElementBuilder UntilAllElementsSelected() => Until(BaseChromeProfile.AllElementsSelected);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public WaitElementBuilder UntilAnyElementsSelected() => Until(BaseChromeProfile.AnyElementsSelected);
-
+        public WaitElementUntilBuilder Until() => new WaitElementUntilBuilder(this);
 
         /// <summary>
         /// 
