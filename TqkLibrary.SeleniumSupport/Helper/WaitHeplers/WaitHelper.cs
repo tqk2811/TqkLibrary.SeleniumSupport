@@ -42,6 +42,36 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             this._cancellationToken = cancellationToken;
         }
 
+        internal Func<Task> _WorkAsync = null;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="workAsync"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitHelper Do(Func<Task> workAsync)
+        {
+            this._WorkAsync = workAsync ?? throw new ArgumentNullException(nameof(workAsync));
+            return this;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="work"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitHelper Do(Action work)
+        {
+            if (work is null) throw new ArgumentNullException(nameof(work));
+            this._WorkAsync = () =>
+            {
+                work.Invoke();
+                return Task.CompletedTask;
+            };
+            return this;
+        }
+
 
         /// <summary>
         /// 

@@ -28,6 +28,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         internal bool _IsThrow = false;
 
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _waitHepler.DefaultTimeout; } }
+        internal Func<Task> GetWorkAsync { get { return _WorkAsync ?? _waitHepler._WorkAsync; } }
     }
 
     /// <summary>
