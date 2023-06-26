@@ -35,9 +35,10 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GetTimeout);
             while (!cancellationTokenSource.IsCancellationRequested)
             {
-                if (_WorkAsync is not null)
+                var workAsync = GetWorkAsync;
+                if (workAsync is not null)
                 {
-                    Task task = _WorkAsync.Invoke();
+                    Task task = workAsync.Invoke();
                     if (task is not null)
                     {
                         await task;
