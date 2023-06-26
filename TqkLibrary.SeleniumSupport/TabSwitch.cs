@@ -14,7 +14,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        public bool IsCloseTab { get; set; } = false;
+        public bool IsCloseTab { get; set; } = true;
         /// <summary>
         /// 
         /// </summary>
@@ -28,8 +28,9 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <param name="chromeDriver"></param>
         /// <param name="url"></param>
+        /// <param name="isCloseTap"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public TabSwitch(ChromeDriver chromeDriver, string url)
+        public TabSwitch(ChromeDriver chromeDriver, string url, bool isCloseTap = true)
         {
             if (chromeDriver is null) throw new ArgumentNullException(nameof(chromeDriver));
             if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
@@ -40,6 +41,7 @@ namespace TqkLibrary.SeleniumSupport
             this.chromeDriver.ExecuteScript($"open(arguments[0])", url);
             NewWindowHandle = chromeDriver.WindowHandles.Except(handles).FirstOrDefault();
             this.chromeDriver.SwitchTo().Window(NewWindowHandle);
+            this.IsCloseTab = isCloseTap;
         }
         /// <summary>
         /// 
