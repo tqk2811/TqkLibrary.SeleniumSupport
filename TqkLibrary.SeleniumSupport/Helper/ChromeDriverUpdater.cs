@@ -234,7 +234,9 @@ namespace TqkLibrary.SeleniumSupport
 
             if (File.Exists(zipPath))
             {
-                ZipFile.ExtractToDirectory(zipPath, folderLocation);
+                using var zip = ZipFile.Open(zipPath, ZipArchiveMode.Read);
+                var entry = zip.Entries.FirstOrDefault(x => x.Name.Contains("chromedriver.exe"));
+                entry.ExtractToFile(Path.Combine(folderLocation, "chromedriver.exe"), true);
             }
         }
     }
