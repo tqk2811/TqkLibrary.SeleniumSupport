@@ -153,11 +153,12 @@ namespace TqkLibrary.SeleniumSupport
                     var ver = x.GetVersion();
                     return
                         ver is not null &&
-                        ver.Major == need_version.Major &&
+                        ver.Major == need_version.Major && ver.Minor == need_version.Minor && ver.Build == need_version.Build &&
                         x?.Downloads?.Chromedriver is not null &&
                         x.Downloads.Chromedriver.Any(y => !string.IsNullOrWhiteSpace(y?.Url) && supportPlatforms.Contains(y.Platform));
                 })
-                .FirstOrDefault();
+                .OrderBy(x => x.GetVersion().Revision)
+                .LastOrDefault();
 
             if (downloadVersionInfo is not null)
             {
