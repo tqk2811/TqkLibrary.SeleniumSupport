@@ -21,7 +21,7 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public static async Task<int> Download(string folderLocation, int MajorPart, CancellationToken cancellationToken = default)
+        public static async Task<int> DownloadAsync(string folderLocation, int MajorPart, CancellationToken cancellationToken = default)
         {
             string path = GetChromePath();
             var version = GetChromeVersion(path);
