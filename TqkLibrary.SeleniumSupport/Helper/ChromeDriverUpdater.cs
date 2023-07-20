@@ -236,7 +236,14 @@ namespace TqkLibrary.SeleniumSupport
             {
                 using var zip = ZipFile.Open(zipPath, ZipArchiveMode.Read);
                 var entry = zip.Entries.FirstOrDefault(x => x.Name.Contains("chromedriver.exe"));
-                entry.ExtractToFile(Path.Combine(folderLocation, "chromedriver.exe"), true);
+                if (entry is not null)
+                {
+                    entry.ExtractToFile(Path.Combine(folderLocation, "chromedriver.exe"), true);
+                }
+                else
+                {
+                    throw new Exception($"chromedriver.exe not found in zip file");
+                }
             }
         }
     }
