@@ -129,6 +129,12 @@ namespace TqkLibrary.SeleniumSupport
             [JsonProperty("url")]
             public string Url { get; set; }
         }
+
+        static IEnumerable<string> GetSupportPlatforms()
+        {
+            if (Environment.Is64BitOperatingSystem) yield return "win64";
+            yield return "win32";
+        }
         static async Task<string> GetURLToDownloadAsync(this HttpClient httpClient, string version, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(version))
@@ -145,8 +151,6 @@ namespace TqkLibrary.SeleniumSupport
                 knownGood = JsonConvert.DeserializeObject<KnownGoodVersionsWithDownloads>(json);
             }
 
-            IEnumerable<string> supportPlatforms = new string[] { "win64", "win32" };
-
             DownloadVersionInfo downloadVersionInfo = knownGood.Versions
                 .Where(x =>
                 {
@@ -155,14 +159,14 @@ namespace TqkLibrary.SeleniumSupport
                         ver is not null &&
                         ver.Major == need_version.Major && ver.Minor == need_version.Minor && ver.Build == need_version.Build &&
                         x?.Downloads?.Chromedriver is not null &&
-                        x.Downloads.Chromedriver.Any(y => !string.IsNullOrWhiteSpace(y?.Url) && supportPlatforms.Contains(y.Platform));
+                        x.Downloads.Chromedriver.Any(y => !string.IsNullOrWhiteSpace(y?.Url) && GetSupportPlatforms().Contains(y.Platform));
                 })
                 .OrderBy(x => x.GetVersion().Revision)
                 .LastOrDefault();
 
             if (downloadVersionInfo is not null)
             {
-                foreach (var platform in supportPlatforms)
+                foreach (var platform in GetSupportPlatforms())
                 {
                     if (Uri.TryCreate(downloadVersionInfo.Downloads.Chromedriver.FirstOrDefault(x => platform.Equals(x.Platform)).Url, UriKind.RelativeOrAbsolute, out Uri uri))
                     {
