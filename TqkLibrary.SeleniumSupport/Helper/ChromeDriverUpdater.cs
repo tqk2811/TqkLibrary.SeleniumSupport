@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -15,11 +17,6 @@ namespace TqkLibrary.SeleniumSupport
     /// </summary>
     public static class ChromeDriverUpdater
     {
-        static readonly HttpClient httpClient = new HttpClient(new HttpClientHandler()
-        {
-            AutomaticDecompression = System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.GZip
-        });
-
         /// <summary>
         /// 
         /// </summary>
@@ -30,10 +27,23 @@ namespace TqkLibrary.SeleniumSupport
             var version = GetChromeVersion(path);
             if (version.FileMajorPart > MajorPart || !IsChromeDriverExist(folderLocation))
             {
+                using HttpClient httpClient = new HttpClient(new HttpClientHandler()
+                {
+                    AutomaticDecompression = System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.GZip
+                });
+
                 var verString = version.FileVersion;
-                var urlToDownload = await GetURLToDownload(verString, cancellationToken).ConfigureAwait(false);
+                string urlToDownload = string.Empty;
+                if (version.FileMajorPart <= 114)//support for old MajorPart
+                {
+                    urlToDownload = await httpClient.GetURLToDownloadAsync_Old(verString, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    urlToDownload = await httpClient.GetURLToDownloadAsync(verString, cancellationToken).ConfigureAwait(false);
+                }
                 KillAllChromeDriverProcesses();
-                await DownloadNewVersionOfChrome(folderLocation, urlToDownload, cancellationToken);
+                await httpClient.DownloadNewVersionOfChromeAsync(folderLocation, urlToDownload, cancellationToken);
             }
             return version.FileMajorPart;
         }
@@ -76,7 +86,93 @@ namespace TqkLibrary.SeleniumSupport
             return FileVersionInfo.GetVersionInfo(productVersionPath);
         }
 
-        static async Task<string> GetURLToDownload(string version, CancellationToken cancellationToken = default)
+        class KnownGoodVersionsWithDownloads
+        {
+            [JsonProperty("timestamp")]
+            public DateTime Timestamp { get; set; }
+
+            [JsonProperty("versions")]
+            public List<DownloadVersionInfo> Versions { get; set; }
+        }
+        class DownloadVersionInfo
+        {
+            [JsonProperty("version")]
+            public string Version { get; set; }
+
+            [JsonProperty("revision")]
+            public string Revision { get; set; }
+
+            [JsonProperty("downloads")]
+            public DownloadList Downloads { get; set; }
+
+
+            public Version GetVersion()
+            {
+                System.Version version = null;
+                System.Version.TryParse(Version, out version);
+                return version;
+            }
+        }
+        class DownloadList
+        {
+            [JsonProperty("chrome")]
+            public List<DownloadInfo> Chrome { get; set; }
+
+            [JsonProperty("chromedriver")]
+            public List<DownloadInfo> Chromedriver { get; set; }
+        }
+        class DownloadInfo
+        {
+            [JsonProperty("platform")]
+            public string Platform { get; set; }
+
+            [JsonProperty("url")]
+            public string Url { get; set; }
+        }
+        static async Task<string> GetURLToDownloadAsync(this HttpClient httpClient, string version, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(version))
+                throw new ArgumentException("Unable to get url because version is empty");
+
+            if (!Version.TryParse(version, out var need_version))
+                throw new ArgumentNullException($"invalid version '{version}'");
+
+            KnownGoodVersionsWithDownloads knownGood = null;
+            {
+                using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json");
+                using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
+                string json = await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStringAsync();
+                knownGood = JsonConvert.DeserializeObject<KnownGoodVersionsWithDownloads>(json);
+            }
+
+            IEnumerable<string> supportPlatforms = new string[] { "win64", "win32" };
+
+            DownloadVersionInfo downloadVersionInfo = knownGood.Versions
+                .Where(x =>
+                {
+                    var ver = x.GetVersion();
+                    return
+                        ver is not null &&
+                        ver.Major == need_version.Major &&
+                        x?.Downloads?.Chromedriver is not null &&
+                        x.Downloads.Chromedriver.Any(y => !string.IsNullOrWhiteSpace(y?.Url) && supportPlatforms.Contains(y.Platform));
+                })
+                .FirstOrDefault();
+
+            if (downloadVersionInfo is not null)
+            {
+                foreach (var platform in supportPlatforms)
+                {
+                    if (Uri.TryCreate(downloadVersionInfo.Downloads.Chromedriver.FirstOrDefault(x => platform.Equals(x.Platform)).Url, UriKind.RelativeOrAbsolute, out Uri uri))
+                    {
+                        return uri.ToString();
+                    }
+                }
+            }
+
+            throw new NotSupportedException($"chromedrive {version}");
+        }
+        static async Task<string> GetURLToDownloadAsync_Old(this HttpClient httpClient, string version, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(version)) throw new ArgumentException("Unable to get url because version is empty");
 
@@ -107,7 +203,7 @@ namespace TqkLibrary.SeleniumSupport
             }
         }
 
-        static async Task DownloadNewVersionOfChrome(string folderLocation, string urlToDownload, CancellationToken cancellationToken = default)
+        static async Task DownloadNewVersionOfChromeAsync(this HttpClient httpClient, string folderLocation, string urlToDownload, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(urlToDownload)) throw new ArgumentException("Unable to get url because urlToDownload is empty");
 
