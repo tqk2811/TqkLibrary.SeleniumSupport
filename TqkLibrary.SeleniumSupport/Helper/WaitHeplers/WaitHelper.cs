@@ -25,6 +25,15 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         public int DefaultTimeout { get; set; } = 30000;
         internal readonly IWebDriver _webDriver;
         internal readonly CancellationToken _cancellationToken;
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<string> OnLogReceived;
+
+        internal void WriteLog(string log)
+        {
+            OnLogReceived?.Invoke(log);
+        }
 
         /// <summary>
         /// 

@@ -53,6 +53,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <exception cref="ChromeAutoException"></exception>
         public async Task<ReadOnlyCollection<IWebElement>> StartAsync()
         {
+            _waitHepler.WriteLog($"WaitUntilElements {_by}");
             using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GetTimeout);
             while (!cancellationTokenSource.IsCancellationRequested)
             {
@@ -66,7 +67,11 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                     }
                 }
                 var eles = _searchContext.FindElements(_by);
-                if (funcCheck(eles)) return eles;
+                if (funcCheck(eles))
+                {
+                    _waitHepler.WriteLog($"WaitUntilElements {_by}, founds {eles.Count}");
+                    return eles;
+                }
                 await Task.Delay(this._waitHepler.Delay, this._waitHepler._cancellationToken).ConfigureAwait(false);
             }
             if (_IsThrow) throw new ChromeAutoException(_by.ToString());

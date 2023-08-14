@@ -32,6 +32,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <exception cref="ChromeAutoException"></exception>
         public async Task<bool> StartAsync()
         {
+            _waitHepler.WriteLog($"WaitUntilUrl");
             using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GetTimeout);
             while (!cancellationTokenSource.IsCancellationRequested)
             {
@@ -44,7 +45,11 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                         await task;
                     }
                 }
-                if (_checkCallback(_waitHepler._webDriver.Url)) return true;
+                if (_checkCallback(_waitHepler._webDriver.Url))
+                {
+                    _waitHepler.WriteLog($"WaitUntilUrl found: {_waitHepler._webDriver.Url}");
+                    return true;
+                }
                 await Task.Delay(this._waitHepler.Delay, this._waitHepler._cancellationToken).ConfigureAwait(false);
             }
             if (_IsThrow) throw new ChromeAutoException($"Wait Url failed, current url: {_waitHepler._webDriver.Url}");
