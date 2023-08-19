@@ -1,4 +1,5 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
+using OpenQA.Selenium.Chrome;
 using System;
 using System.IO;
 using System.Text;
@@ -57,5 +58,33 @@ namespace TqkLibrary.SeleniumSupport
         /// <exception cref="ArgumentNullException"></exception>
         public static void GenerateExtension(string filepath, string host, int port, string username = null, string password = null, bool isPacked = true)
           => GenerateExtension(filepath, host, port.ToString(), username, password, isPacked);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chromeOptions"></param>
+        /// <param name="filepath"></param>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddProxyLoginExtension(this ChromeOptions chromeOptions, string filepath, string host, string port, string username = null, string password = null)
+        {
+            GenerateExtension(filepath, host, port, username, password, true);
+            chromeOptions.AddExtension(filepath);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chromeOptions"></param>
+        /// <param name="filepath"></param>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddProxyLoginExtension(this ChromeOptions chromeOptions, string filepath, string host, int port, string username = null, string password = null)
+            => AddProxyLoginExtension(chromeOptions, filepath, host, port.ToString(), username, password);
     }
 }
