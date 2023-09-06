@@ -325,26 +325,6 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public WaitHelper WaitHepler(CancellationToken cancellationToken) => new WaitHelper(this, cancellationToken);
 
-        #region WaitFunc
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public static bool ElementsExists(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0;
-
-        public static bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed);
-
-        public static bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed);
-
-        public static bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed && x.Enabled);
-
-        public static bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed && x.Enabled);
-
-        public static bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Selected);
-
-        public static bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Selected);
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
-        #endregion
-
     }
 }
 
