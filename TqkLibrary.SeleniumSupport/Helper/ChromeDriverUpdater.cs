@@ -20,11 +20,21 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="folderLocation"></param>
+        /// <param name="MajorPart"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static async Task<int> DownloadAsync(string folderLocation, int MajorPart, CancellationToken cancellationToken = default)
+        public static Task<int> DownloadAsync(string folderLocation, int MajorPart, CancellationToken cancellationToken = default)
         {
-            string path = GetChromePath();
-            var version = GetChromeVersion(path);
+            return DownloadAsync(folderLocation, MajorPart, GetChromePath(), cancellationToken);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<int> DownloadAsync(string folderLocation, int MajorPart, string chromePath, CancellationToken cancellationToken = default)
+        {
+            var version = GetChromeVersion(chromePath);
             if (version.FileMajorPart > MajorPart || !IsChromeDriverExist(folderLocation))
             {
                 using HttpClient httpClient = new HttpClient(new HttpClientHandler()
