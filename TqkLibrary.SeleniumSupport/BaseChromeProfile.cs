@@ -2,6 +2,7 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -324,6 +325,33 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <returns></returns>
         public WaitHelper WaitHepler(CancellationToken cancellationToken) => new WaitHelper(this, cancellationToken);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void InitUndectedChromeDriver()
+        {
+            if (this.chromeDriver is null) return;
+
+            var parameters = new Dictionary<string, object>
+            {
+                ["source"] = "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
+            };
+            this.chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
+
+            parameters = new Dictionary<string, object>
+            {
+                ["source"] = @"
+let objectToInspect = window;
+let result = [];
+while(objectToInspect !== null){ 
+    result = result.concat(Object.getOwnPropertyNames(objectToInspect));
+    objectToInspect = Object.getPrototypeOf(objectToInspect); 
+}
+result.forEach(p => p.match(/.+_.+_(Array|Promise|Symbol)/ig) && delete window[p] && console.log('removed',p))"
+            };
+            this.chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
+        }
 
     }
 }
