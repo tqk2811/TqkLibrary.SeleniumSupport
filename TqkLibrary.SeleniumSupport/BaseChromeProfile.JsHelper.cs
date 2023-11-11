@@ -57,5 +57,20 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <param name="webElement"></param>
         /// <param name="text"></param>
         public void JsSetInputText(IWebElement webElement, string text) => chromeDriver.ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public byte[] JsScreenshot_html2canvas(IWebElement webElement)
+        {
+            chromeDriver.ExecuteScript(Resource.html2canvas_min);
+            string res = chromeDriver.ExecuteAsyncScript("html2canvas(arguments[0]).then(canvas => { arguments[1](canvas.toDataURL('image/png')); })", webElement) as string;
+            if (string.IsNullOrWhiteSpace(res))
+                return null;
+
+            return Convert.FromBase64String(res.Replace("data:image/png;base64,", ""));
+        }
     }
 }

@@ -209,6 +209,21 @@ namespace TqkLibrary.SeleniumSupport {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to /*
+        ///  html2canvas 0.4.1 &lt;http://html2canvas.hertzen.com&gt;
+        ///  Copyright (c) 2013 Niklas von Hertzen
+        ///
+        ///  Released under MIT License
+        ///*/
+        ///(function(t,e,n){&quot;use strict&quot;;function r(t,e,n){var r,a=t.runtimeStyle&amp;&amp;t.runtimeStyle[e],o=t.style;return!/^-?[0-9]+\.?[0-9]*(?:px)?$/i.test(n)&amp;&amp;/^-?\d/.test(n)&amp;&amp;(r=o.left,a&amp;&amp;(t.runtimeStyle.left=t.currentStyle.left),o.left=&quot;fontSize&quot;===e?&quot;1em&quot;:n||0,n=o.pixelLeft+&quot;px&quot;,o.left=r,a&amp;&amp;(t.runtimeStyle.left=a)),/^(thin|medium|thick)$/i.test(n)?n:Math.round(parseFloat(n))+&quot;px&quot;}function a [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string html2canvas_min {
+            get {
+                return ResourceManager.GetString("html2canvas_min", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to var target = arguments[0],
         ///    offsetX = arguments[1],
         ///    offsetY = arguments[2],
@@ -249,8 +264,12 @@ namespace TqkLibrary.SeleniumSupport {
         ///	}
         ///};
         ///
-        ///chrome.proxy.settings.set({value: config,scope: &quot;regular&quot;}, function () {});
-        ///chrome.webRequest.onAuthRequired.addListener(function callbackFn(details) { return authCre; }, { urls: [&quot;&lt;all_urls&gt;&quot;] }, [&apos;blocking&apos;]);.
+        ///chrome.proxy.settings.set({ value: config, scope: &quot;regular&quot; }, function () { });
+        ///chrome.proxy.onProxyError.addListener(function (details) {
+        ///	console.log(details);
+        ///});
+        ///chrome.webRequest.onAuthRequired.addListener(
+        ///	function callbackFn(de [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ProxyLogin_Ext_background {
             get {
@@ -272,7 +291,8 @@ namespace TqkLibrary.SeleniumSupport {
         ///  &quot;background&quot;: {
         ///    &quot;scripts&quot;: [
         ///      &quot;background.js&quot;
-        ///    ]
+        ///    ],
+        ///    &quot;persistent&quot;: true
         ///  },
         ///  &quot;minimum_chrome_version&quot;: &quot;22.0.0&quot;
         ///}.
