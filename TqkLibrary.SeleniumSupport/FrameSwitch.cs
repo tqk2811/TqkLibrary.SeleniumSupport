@@ -13,7 +13,7 @@ namespace TqkLibrary.SeleniumSupport
 
         internal FrameSwitch(ChromeDriver chromeDriver, IWebElement webElement)
         {
-            this.chromeDriver = chromeDriver;
+            this.chromeDriver = chromeDriver ?? throw new ArgumentNullException(nameof(chromeDriver));
             chromeDriver.SwitchTo().Frame(webElement ?? throw new ArgumentNullException(nameof(webElement)));
         }
 

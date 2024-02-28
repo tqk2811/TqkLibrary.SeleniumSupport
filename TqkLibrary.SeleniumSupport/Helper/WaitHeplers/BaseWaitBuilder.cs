@@ -24,11 +24,11 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         }
 
         internal int? _Timeout = null;
-        internal Func<Task> _WorkAsync = null;
+        internal Func<Task>? _WorkAsync = null;
         internal bool _IsThrow = false;
 
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _waitHepler.DefaultTimeout; } }
-        internal Func<Task> GetWorkAsync { get { return _WorkAsync ?? _waitHepler._WorkAsync; } }
+        internal Func<Task>? GetWorkAsync { get { return _WorkAsync ?? _waitHepler._WorkAsync; } }
     }
 
     /// <summary>

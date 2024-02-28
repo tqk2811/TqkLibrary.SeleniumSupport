@@ -31,11 +31,11 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        protected ChromeDriverService service;
+        protected ChromeDriverService? _service;
         /// <summary>
         /// 
         /// </summary>
-        public string ChromeDriverPath { get; set; }
+        public string? ChromeDriverPath { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -65,23 +65,23 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        public CancellationToken Token { get { return tokenSource.Token; } }
+        public CancellationToken? Token { get { return tokenSource?.Token; } }
         /// <summary>
         /// 
         /// </summary>
-        internal protected ChromeDriver chromeDriver { get; private set; }
+        internal protected ChromeDriver? chromeDriver { get; private set; }
         /// <summary>
         /// 
         /// </summary>
-        protected CancellationTokenSource tokenSource { get; private set; }
+        protected CancellationTokenSource? tokenSource { get; private set; }
         /// <summary>
         /// 
         /// </summary>
-        protected Process process { get; private set; }
+        protected Process? process { get; private set; }
         /// <summary>
         /// 
         /// </summary>
-        public event RunningStateChange StateChange;
+        public event RunningStateChange? StateChange;
         /// <summary>
         /// 
         /// </summary>
@@ -121,7 +121,7 @@ namespace TqkLibrary.SeleniumSupport
         /// profile.password_manager_enabled false</para>
         /// </summary>
         /// <returns></returns>
-        public ChromeOptions DefaultChromeOptions(string BinaryLocation = null)
+        public ChromeOptions DefaultChromeOptions(string? BinaryLocation = null)
         {
             ChromeOptions options = new ChromeOptions();
             if (!string.IsNullOrEmpty(BinaryLocation)) options.BinaryLocation = BinaryLocation;
@@ -146,49 +146,31 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
-        public ChromeOptions LoadFromConfig(ChromeOptionConfig chromeOptionConfig)
-        {
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptionConfig.Arguments?.ForEach(x => chromeOptions.AddArgument(x));
-            chromeOptionConfig.ExcludedArguments?.ForEach(x => chromeOptions.AddExcludedArgument(x));
-            chromeOptionConfig.AdditionalCapabilitys?.ForEach(x => chromeOptions.AddAdditionalOption(x.Name, x.Value));
-            chromeOptionConfig.UserProfilePreferences?.ForEach(x => chromeOptions.AddUserProfilePreference(x.Name, x.Value));
-            if (chromeOptionConfig.UserAgents?.Count > 0)
-            {
-                chromeOptions.AddUserAgent(chromeOptionConfig.UserAgents[new Random().Next(chromeOptionConfig.UserAgents.Count)]);
-            }
-            return chromeOptions;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="chromeOptions"></param>
         /// <param name="chromeDriverService"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public bool OpenChrome(ChromeOptions chromeOptions, ChromeDriverService chromeDriverService = null, CancellationToken cancellationToken = default)
+        public bool OpenChrome(ChromeOptions chromeOptions, ChromeDriverService? chromeDriverService = null, CancellationToken cancellationToken = default)
         {
             if (!IsOpenChrome)
             {
-                if (chromeDriverService != null) service = chromeDriverService;
+                if (chromeDriverService != null) _service = chromeDriverService;
                 else
                 {
-                    service = ChromeDriverService.CreateDefaultService(ChromeDriverPath);
-                    service.HideCommandPromptWindow = HideCommandPromptWindow;
+                    _service = ChromeDriverService.CreateDefaultService(ChromeDriverPath);
+                    _service.HideCommandPromptWindow = HideCommandPromptWindow;
                 }
 
                 tokenSource = new CancellationTokenSource();
                 cancellationTokenRegistration = cancellationToken.Register(() => { if (tokenSource?.IsCancellationRequested == false) tokenSource.Cancel(); });
                 try
                 {
-                    chromeDriver = new ChromeDriver(service, chromeOptions, CommandTimeout);
+                    chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
                 }
                 catch
                 {
-                    service.Dispose();
-                    service = null;
+                    _service.Dispose();
+                    _service = null;
                     return false;
                 }
                 finally
@@ -206,14 +188,14 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="Arguments"></param>
         /// <param name="ChromePath"></param>
         /// <returns></returns>
-        public Process OpenChromeWithoutSelenium(string Arguments, string ChromePath = null)
+        public Process? OpenChromeWithoutSelenium(string Arguments, string? ChromePath = null)
         {
             if (!IsOpenChrome)
             {
                 process = new Process();
                 if (!string.IsNullOrEmpty(ChromePath)) process.StartInfo.FileName = ChromePath;
                 else process.StartInfo.FileName = ChromeDriverUpdater.GetChromePath();
-                process.StartInfo.WorkingDirectory = new FileInfo(process.StartInfo.FileName).Directory.FullName;
+                process.StartInfo.WorkingDirectory = new FileInfo(process.StartInfo.FileName).Directory!.FullName;
                 process.StartInfo.Arguments = Arguments;
                 process.EnableRaisingEvents = true;
                 process.Exited += Process_Exited;
@@ -224,7 +206,7 @@ namespace TqkLibrary.SeleniumSupport
             return null;
         }
 
-        private void Process_Exited(object sender, EventArgs e)
+        private void Process_Exited(object? sender, EventArgs e)
         {
             this.process = null;
             StateChange?.Invoke(IsOpenChrome);
@@ -248,8 +230,8 @@ namespace TqkLibrary.SeleniumSupport
                 process = null;
                 chromeDriver?.Quit();
                 chromeDriver = null;
-                service?.Dispose();
-                service = null;
+                _service?.Dispose();
+                _service = null;
                 cancellationTokenRegistration?.Dispose();
                 cancellationTokenRegistration = null;
                 tokenSource?.Dispose();
@@ -286,9 +268,9 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public async Task DelayAsync(int time, CancellationToken cancellationToken = default)
         {
-            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<object?> tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
             using var register = cancellationToken.Register(() => tcs.TrySetCanceled());
-            using var register2 = tokenSource.Token.Register(() => tcs.TrySetCanceled());
+            using var register2 = tokenSource?.Token.Register(() => tcs.TrySetCanceled());
             _ = Task.Delay(time).ContinueWith((t) => tcs.TrySetResult(null), TaskContinuationOptions.RunContinuationsAsynchronously);
             await tcs.Task.ConfigureAwait(false);
         }
@@ -306,19 +288,23 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <param name="by"></param>
         /// <returns></returns>
-        public ReadOnlyCollection<IWebElement> FindElements(By by) => chromeDriver.FindElements(by);
+        public ReadOnlyCollection<IWebElement> FindElements(By by)
+        {
+            if (chromeDriver is null) throw new InvalidOperationException($"{nameof(chromeDriver)} is null, need start chrome first");
+            return chromeDriver.FindElements(by);
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElement"></param>
         /// <returns></returns>
-        public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver, webElement);
+        public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver!, webElement);
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public TabSwitch TabSwitch(string url, bool isCloseOnDispose = true) => new TabSwitch(chromeDriver, url) { IsCloseTab = isCloseOnDispose };
+        public TabSwitch TabSwitch(string url, bool isCloseOnDispose = true) => new TabSwitch(chromeDriver!, url) { IsCloseTab = isCloseOnDispose };
 
         /// <summary>
         /// 
@@ -355,167 +341,3 @@ result.forEach(p => p.match(/.+_.+_(Array|Promise|Symbol)/ig) && delete window[p
 
     }
 }
-
-//protected virtual ReadOnlyCollection<IWebElement> WaitUntilAll(IWebElement parent, By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
-//{
-//  if (IsOpenChrome)
-//  {
-//    using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-//    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-//    {
-//      Delay(delay, delay);
-//      var eles = parent.FindElements(by);
-//      if (eles.Count > 0)
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.Exists: return eles;
-
-//          case ElementsIs.Visible:
-//            if (eles.All(x => x.Displayed)) return eles;
-//            break;
-
-//          case ElementsIs.Clickable:
-//            if (eles.All(x => x.Displayed && x.Enabled)) return eles;
-//            break;
-
-//          case ElementsIs.Selected:
-//            if (eles.All(x => x.Selected)) return eles;
-//            break;
-//        }
-//      }
-//      else
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.NotExists:
-//            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-//        }
-//      }
-//    }
-//  }
-//  return null;
-//}
-
-//protected virtual ReadOnlyCollection<IWebElement> WaitUntilAny(IWebElement parent, By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
-//{
-//  if (IsOpenChrome)
-//  {
-//    CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-//    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-//    {
-//      Delay(delay, delay);
-//      var eles = parent.FindElements(by);
-//      if (eles.Count > 0)
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.Exists: return eles;
-
-//          case ElementsIs.Visible:
-//            if (eles.Any(x => x.Displayed)) return eles;
-//            break;
-
-//          case ElementsIs.Clickable:
-//            if (eles.Any(x => x.Displayed && x.Enabled)) return eles;
-//            break;
-
-//          case ElementsIs.Selected:
-//            if (eles.Any(x => x.Selected)) return eles;
-//            break;
-//        }
-//      }
-//      else
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.NotExists:
-//            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-//        }
-//      }
-//    }
-//  }
-//  return null;
-//}
-
-//protected virtual ReadOnlyCollection<IWebElement> WaitUntilAll(By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
-//{
-//  if (IsOpenChrome)
-//  {
-//    using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-//    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-//    {
-//      Delay(delay, delay);
-//      var eles = chromeDriver.FindElements(by);
-//      if (eles.Count > 0)
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.Exists: return eles;
-
-//          case ElementsIs.Visible:
-//            if (eles.All(x => x.Displayed)) return eles;
-//            break;
-
-//          case ElementsIs.Clickable:
-//            if (eles.All(x => x.Displayed && x.Enabled)) return eles;
-//            break;
-
-//          case ElementsIs.Selected:
-//            if (eles.All(x => x.Selected)) return eles;
-//            break;
-//        }
-//      }
-//      else
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.NotExists:
-//            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-//        }
-//      }
-//    }
-//  }
-//  return null;
-//}
-
-//protected virtual ReadOnlyCollection<IWebElement> WaitUntilAny(By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
-//{
-//  if (IsOpenChrome)
-//  {
-//    CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-//    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-//    {
-//      Delay(delay, delay);
-//      var eles = chromeDriver.FindElements(by);
-//      if (eles.Count > 0)
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.Exists: return eles;
-
-//          case ElementsIs.Visible:
-//            if (eles.Any(x => x.Displayed)) return eles;
-//            break;
-
-//          case ElementsIs.Clickable:
-//            if (eles.Any(x => x.Displayed && x.Enabled)) return eles;
-//            break;
-
-//          case ElementsIs.Selected:
-//            if (eles.Any(x => x.Selected)) return eles;
-//            break;
-//        }
-//      }
-//      else
-//      {
-//        switch (waitFlag)
-//        {
-//          case ElementsIs.NotExists:
-//            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-//        }
-//      }
-//    }
-//  }
-//  return null;
-//}

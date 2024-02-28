@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -42,7 +43,8 @@ namespace TqkLibrary.SeleniumSupport
                     AutomaticDecompression = System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.GZip
                 });
 
-                var verString = version.FileVersion;
+                string? verString = version.FileVersion;
+                if (string.IsNullOrWhiteSpace(verString)) throw new VersionNotFoundException(chromePath);
                 string urlToDownload = string.Empty;
                 if (version.FileMajorPart <= 114)//support for old MajorPart
                 {
@@ -74,15 +76,13 @@ namespace TqkLibrary.SeleniumSupport
             string chrome86 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
             if (File.Exists(chrome64)) return chrome64;
             else if (File.Exists(chrome86)) return chrome86;
-            else using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"))
+            else using (RegistryKey? key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"))
                 {
-                    if (key != null)
+                    object? o = key?.GetValue("");
+                    string? chromePath = o?.ToString();
+                    if (!string.IsNullOrEmpty(chromePath))
                     {
-                        Object o = key.GetValue("");
-                        if (!string.IsNullOrEmpty(o.ToString()))
-                        {
-                            return o.ToString();
-                        }
+                        return chromePath!;
                     }
                 }
             throw new FileNotFoundException("chrome.exe");
@@ -102,23 +102,23 @@ namespace TqkLibrary.SeleniumSupport
             public DateTime Timestamp { get; set; }
 
             [JsonProperty("versions")]
-            public List<DownloadVersionInfo> Versions { get; set; }
+            public List<DownloadVersionInfo>? Versions { get; set; }
         }
         class DownloadVersionInfo
         {
             [JsonProperty("version")]
-            public string Version { get; set; }
+            public string? Version { get; set; }
 
             [JsonProperty("revision")]
-            public string Revision { get; set; }
+            public string? Revision { get; set; }
 
             [JsonProperty("downloads")]
-            public DownloadList Downloads { get; set; }
+            public DownloadList? Downloads { get; set; }
 
 
-            public Version GetVersion()
+            public Version? GetVersion()
             {
-                System.Version version = null;
+                System.Version? version = null;
                 System.Version.TryParse(Version, out version);
                 return version;
             }
@@ -126,18 +126,18 @@ namespace TqkLibrary.SeleniumSupport
         class DownloadList
         {
             [JsonProperty("chrome")]
-            public List<DownloadInfo> Chrome { get; set; }
+            public List<DownloadInfo>? Chrome { get; set; }
 
             [JsonProperty("chromedriver")]
-            public List<DownloadInfo> Chromedriver { get; set; }
+            public List<DownloadInfo>? Chromedriver { get; set; }
         }
         class DownloadInfo
         {
             [JsonProperty("platform")]
-            public string Platform { get; set; }
+            public string? Platform { get; set; }
 
             [JsonProperty("url")]
-            public string Url { get; set; }
+            public string? Url { get; set; }
         }
 
         static IEnumerable<string> GetSupportPlatforms()
@@ -153,7 +153,7 @@ namespace TqkLibrary.SeleniumSupport
             if (!Version.TryParse(version, out var need_version))
                 throw new ArgumentNullException($"invalid version '{version}'");
 
-            KnownGoodVersionsWithDownloads knownGood = null;
+            KnownGoodVersionsWithDownloads? knownGood = null;
             {
                 using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json");
                 using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
@@ -161,7 +161,7 @@ namespace TqkLibrary.SeleniumSupport
                 knownGood = JsonConvert.DeserializeObject<KnownGoodVersionsWithDownloads>(json);
             }
 
-            DownloadVersionInfo downloadVersionInfo = knownGood.Versions
+            DownloadVersionInfo? downloadVersionInfo = knownGood?.Versions?
                 .Where(x =>
                 {
                     var ver = x.GetVersion();
@@ -169,16 +169,17 @@ namespace TqkLibrary.SeleniumSupport
                         ver is not null &&
                         ver.Major == need_version.Major && ver.Minor == need_version.Minor && ver.Build == need_version.Build &&
                         x?.Downloads?.Chromedriver is not null &&
-                        x.Downloads.Chromedriver.Any(y => !string.IsNullOrWhiteSpace(y?.Url) && GetSupportPlatforms().Contains(y.Platform));
+                        x.Downloads.Chromedriver.Any(y => !string.IsNullOrWhiteSpace(y?.Url) && GetSupportPlatforms().Contains(y?.Platform));
                 })
-                .OrderBy(x => x.GetVersion().Revision)
+                .OrderBy(x => x.GetVersion()?.Revision)
                 .LastOrDefault();
 
             if (downloadVersionInfo is not null)
             {
                 foreach (var platform in GetSupportPlatforms())
                 {
-                    if (Uri.TryCreate(downloadVersionInfo.Downloads.Chromedriver.FirstOrDefault(x => platform.Equals(x.Platform)).Url, UriKind.RelativeOrAbsolute, out Uri uri))
+                    if (Uri.TryCreate(downloadVersionInfo?.Downloads?.Chromedriver
+                        ?.FirstOrDefault(x => platform.Equals(x.Platform))?.Url, UriKind.RelativeOrAbsolute, out Uri? uri))
                     {
                         return uri.ToString();
                     }

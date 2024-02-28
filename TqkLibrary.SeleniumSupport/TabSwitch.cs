@@ -22,7 +22,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        public string NewWindowHandle { get; }
+        public string? NewWindowHandle { get; }
         /// <summary>
         /// 
         /// </summary>
@@ -32,10 +32,9 @@ namespace TqkLibrary.SeleniumSupport
         /// <exception cref="ArgumentNullException"></exception>
         public TabSwitch(ChromeDriver chromeDriver, string url, bool isCloseTap = true)
         {
-            if (chromeDriver is null) throw new ArgumentNullException(nameof(chromeDriver));
             if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
 
-            this.chromeDriver = chromeDriver;
+            this.chromeDriver = chromeDriver ?? throw new ArgumentNullException(nameof(chromeDriver));
             OldWindowHandle = chromeDriver.CurrentWindowHandle;
             IEnumerable<string> handles = chromeDriver.WindowHandles.ToList();
             this.chromeDriver.ExecuteScript($"open(arguments[0])", url);

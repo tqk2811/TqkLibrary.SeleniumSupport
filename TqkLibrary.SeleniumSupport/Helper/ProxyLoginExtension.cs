@@ -11,11 +11,25 @@ namespace TqkLibrary.SeleniumSupport
     /// </summary>
     public static class ProxyLoginExtension
     {
+        internal class CustomStaticDataSource : IStaticDataSource, IDisposable
+        {
+            private readonly MemoryStream memoryStream;
+
+            public CustomStaticDataSource(string content)
+            {
+                this.memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+            }
+
+            public void Dispose() => memoryStream.Dispose();
+
+            public Stream GetSource() => memoryStream;
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void GenerateExtension(string path, string host, string port, string username = null, string password = null, bool isPacked = true)
+        public static void GenerateExtension(string path, string host, string port, string? username = null, string? password = null, bool isPacked = true)
         {
             if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
             if (string.IsNullOrEmpty(host)) throw new ArgumentNullException(nameof(host));
@@ -56,7 +70,7 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void GenerateExtension(string filepath, string host, int port, string username = null, string password = null, bool isPacked = true)
+        public static void GenerateExtension(string filepath, string host, int port, string? username = null, string? password = null, bool isPacked = true)
           => GenerateExtension(filepath, host, port.ToString(), username, password, isPacked);
 
         /// <summary>
@@ -69,7 +83,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void AddProxyLoginExtension(this ChromeOptions chromeOptions, string filepath, string host, string port, string username = null, string password = null)
+        public static void AddProxyLoginExtension(this ChromeOptions chromeOptions, string filepath, string host, string port, string? username = null, string? password = null)
         {
             GenerateExtension(filepath, host, port, username, password, true);
             chromeOptions.AddExtension(filepath);
@@ -84,7 +98,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void AddProxyLoginExtension(this ChromeOptions chromeOptions, string filepath, string host, int port, string username = null, string password = null)
+        public static void AddProxyLoginExtension(this ChromeOptions chromeOptions, string filepath, string host, int port, string? username = null, string? password = null)
             => AddProxyLoginExtension(chromeOptions, filepath, host, port.ToString(), username, password);
     }
 }

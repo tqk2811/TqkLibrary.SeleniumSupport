@@ -28,7 +28,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             this._searchContext = searchContext ?? throw new ArgumentNullException(nameof(searchContext));
         }
 
-        Func<ReadOnlyCollection<IWebElement>, bool> funcCheck = null;
+        Func<ReadOnlyCollection<IWebElement>, bool>? funcCheck = null;
 
         /// <summary>
         /// 
@@ -53,6 +53,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <exception cref="ChromeAutoException"></exception>
         public async Task<ReadOnlyCollection<IWebElement>> StartAsync()
         {
+            if (funcCheck is null) throw new InvalidOperationException($"Must call {nameof(Until)} function first");
             _waitHepler.WriteLog($"WaitUntilElements {_by}");
             using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GetTimeout);
             while (!cancellationTokenSource.IsCancellationRequested)

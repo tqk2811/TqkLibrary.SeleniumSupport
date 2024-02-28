@@ -28,7 +28,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <summary>
         /// 
         /// </summary>
-        public event Action<string> OnLogReceived;
+        public event Action<string>? OnLogReceived;
 
         internal void WriteLog(string log)
         {
@@ -38,7 +38,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <summary>
         /// 
         /// </summary>
-        public WaitHelper(BaseChromeProfile baseChromeProfile, CancellationToken cancellationToken) : this(baseChromeProfile.chromeDriver, cancellationToken)
+        public WaitHelper(BaseChromeProfile baseChromeProfile, CancellationToken cancellationToken) : this(baseChromeProfile.chromeDriver!, cancellationToken)
         {
 
         }
@@ -51,7 +51,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             this._cancellationToken = cancellationToken;
         }
 
-        internal Func<Task> _WorkAsync = null;
+        internal Func<Task>? _WorkAsync = null;
 
         /// <summary>
         /// 

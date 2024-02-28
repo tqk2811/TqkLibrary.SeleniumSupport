@@ -19,13 +19,13 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElements"></param>
         /// <returns></returns>
         public static async Task<IWebElement> FirstAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements)?.First();
+            => (await webElements).First();
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElements"></param>
         /// <returns></returns>
-        public static async Task<IWebElement> FirstOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
+        public static async Task<IWebElement?> FirstOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
             => (await webElements)?.FirstOrDefault();
         /// <summary>
         /// 
@@ -33,13 +33,13 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElements"></param>
         /// <returns></returns>
         public static async Task<IWebElement> LastAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements)?.Last();
+            => (await webElements).Last();
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElements"></param>
         /// <returns></returns>
-        public static async Task<IWebElement> LastOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
+        public static async Task<IWebElement?> LastOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
             => (await webElements)?.LastOrDefault();
 
         /// <summary>
@@ -77,20 +77,21 @@ namespace TqkLibrary.SeleniumSupport
         public static async Task<int> CountAsync(this Task<ReadOnlyCollection<IWebElement>> webElements, Func<IWebElement, bool> predicate)
             => (await webElements).Count(predicate);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static async Task ClickAsync(this Task<IWebElement> webElement)
+            => (await webElement).Click();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElement"></param>
         /// <returns></returns>
-        public static async Task ClickAsync(this Task<IWebElement> webElement) => (await webElement).Click();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="webElement"></param>
-        /// <returns></returns>
-        public static async Task ClearAsync(this Task<IWebElement> webElement) => (await webElement).Clear();
+        public static async Task ClearAsync(this Task<IWebElement> webElement)
+            => (await webElement).Clear();
 
         /// <summary>
         /// 
@@ -98,7 +99,8 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElement"></param>
         /// <param name="text"></param>
         /// <returns></returns>
-        public static async Task SendKeysAsync(this Task<IWebElement> webElement, string text) => (await webElement).SendKeys(text);
+        public static async Task SendKeysAsync(this Task<IWebElement> webElement, string text)
+            => (await webElement).SendKeys(text);
 
         /// <summary>
         /// 
@@ -106,16 +108,8 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElement"></param>
         /// <param name="attributeName"></param>
         /// <returns></returns>
-        public static async Task<string> GetAttributeAsync(this Task<IWebElement> webElement, string attributeName) => (await webElement).GetAttribute(attributeName);
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="webElement"></param>
-        /// <param name="attributeName"></param>
-        /// <returns></returns>
-        public static async Task<string> GetDomPropertyAsync(this Task<IWebElement> webElement, string attributeName) => (await webElement).GetDomProperty(attributeName);
+        public static async Task<string> GetAttributeAsync(this Task<IWebElement> webElement, string attributeName)
+            => (await webElement).GetAttribute(attributeName);
 
         /// <summary>
         /// 
@@ -123,7 +117,17 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElement"></param>
         /// <param name="attributeName"></param>
         /// <returns></returns>
-        public static async Task<string> GetDomAttributeAsync(this Task<IWebElement> webElement, string attributeName) => (await webElement).GetDomAttribute(attributeName);
+        public static async Task<string> GetDomPropertyAsync(this Task<IWebElement> webElement, string attributeName)
+            => (await webElement).GetDomProperty(attributeName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="attributeName"></param>
+        /// <returns></returns>
+        public static async Task<string> GetDomAttributeAsync(this Task<IWebElement> webElement, string attributeName)
+            => (await webElement).GetDomAttribute(attributeName);
 
         /// <summary>
         /// 
@@ -140,5 +144,14 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public static ReadOnlyCollection<IWebElement> FindElements(this ISearchContext searchContext, string cssSelector)
             => searchContext.FindElements(By.CssSelector(cssSelector));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="searchContext"></param>
+        /// <param name="cssSelector"></param>
+        /// <returns></returns>
+        public static IWebElement FindElement(this ISearchContext searchContext, string cssSelector)
+            => searchContext.FindElement(By.CssSelector(cssSelector));
     }
 }
