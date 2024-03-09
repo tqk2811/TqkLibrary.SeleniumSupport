@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TqkLibrary.SeleniumSupport
+namespace TqkLibrary.SeleniumSupport.Exceptions
 {
     /// <summary>
     /// 

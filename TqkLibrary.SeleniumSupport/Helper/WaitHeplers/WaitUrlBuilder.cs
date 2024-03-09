@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Threading;
+using TqkLibrary.SeleniumSupport.Exceptions;
 
 namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
 {

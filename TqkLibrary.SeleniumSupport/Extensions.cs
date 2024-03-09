@@ -1,4 +1,5 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,6 +14,121 @@ namespace TqkLibrary.SeleniumSupport
     /// </summary>
     public static class Extensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static WebDriver GetWebDriver(this IWebElement webElement)
+        {
+            if (webElement is null) throw new ArgumentNullException(nameof(webElement));
+            IWrapsDriver wrapsDriver = (IWrapsDriver)webElement;
+            return (WebDriver)wrapsDriver.WrappedDriver;
+        }
+
+        #region JSDropFile
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="file"></param>
+        /// <param name="offsetX"></param>
+        /// <param name="offsetY"></param>
+        public static void JsDropFile(this IWebElement webElement, string file, int offsetX, int offsetY)
+        {
+            IWebElement input = (IWebElement)webElement.GetJavaScriptExecutor().ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
+            input.SendKeys(file);
+        }
+
+        #endregion JSDropFile
+
+        #region JsClick
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        public static void JsDoubleClick(this IWebElement webElement)
+        {
+            webElement.GetJavaScriptExecutor().ExecuteScript(@"var evt = document.createEvent('MouseEvents');
+evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0,null);
+arguments[0].dispatchEvent(evt);", webElement);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        public static void JsClick(this IWebElement webElement)
+        {
+            webElement.GetJavaScriptExecutor().ExecuteScript("arguments[0].click();", webElement);
+        }
+
+        #endregion JsClick
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        public static void JsScrollIntoView(this IWebElement webElement)
+        {
+            webElement.GetJavaScriptExecutor().ExecuteScript("arguments[0].scrollIntoView();", webElement);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="text"></param>
+        public static void JsSetInputText(this IWebElement webElement, string text)
+        {
+            webElement.GetJavaScriptExecutor().ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static byte[]? JsScreenshot_html2canvas(this IWebElement webElement)
+        {
+            IJavaScriptExecutor javaScriptExecutor = webElement.GetJavaScriptExecutor();
+            javaScriptExecutor.ExecuteScript(Resource.html2canvas_min);
+            string? res = javaScriptExecutor.ExecuteAsyncScript("html2canvas(arguments[0]).then(canvas => { arguments[1](canvas.toDataURL('image/png')); })", webElement) as string;
+            if (string.IsNullOrWhiteSpace(res))
+            {
+                return null;
+            }
+            else
+            {
+                return Convert.FromBase64String(res!.Substring("data:image/png;base64,".Length));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webDriver"></param>
+        /// <param name="url"></param>
+        /// <param name="isCloseTab"></param>
+        /// <returns></returns>
+        public static TabSwitch TabSwitch(this WebDriver webDriver, string url, bool isCloseTab = true)
+        {
+            return new TabSwitch(webDriver, url, isCloseTab);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static FrameSwitch FrameSwitch(this IWebElement webElement)
+        {
+            return new FrameSwitch(webElement.GetWebDriver(), webElement);
+        }
+
+        #region LinQ Async
+
         /// <summary>
         /// 
         /// </summary>
@@ -76,6 +192,8 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public static async Task<int> CountAsync(this Task<ReadOnlyCollection<IWebElement>> webElements, Func<IWebElement, bool> predicate)
             => (await webElements).Count(predicate);
+
+        #endregion
 
         /// <summary>
         /// 
