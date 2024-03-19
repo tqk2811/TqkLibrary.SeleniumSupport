@@ -366,7 +366,14 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public TabSwitch TabSwitch(string url, bool isCloseOnDispose = true) => new TabSwitch(_chromeDriver!, url) { IsCloseTab = isCloseOnDispose };
+        public TabSwitch TabSwitchFromUrl(string url, bool isCloseOnDispose = true) => TabSwitch.FromUrl(_chromeDriver!, url, isCloseOnDispose);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tabId"></param>
+        /// <param name="isCloseOnDispose"></param>
+        /// <returns></returns>
+        public TabSwitch TabSwitchFromExistTab(string tabId, bool isCloseOnDispose = true) => TabSwitch.FromExistTab(_chromeDriver!, tabId, isCloseOnDispose);
         /// <summary>
         /// 
         /// </summary>

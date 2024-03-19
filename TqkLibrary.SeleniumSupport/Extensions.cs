@@ -113,9 +113,20 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <param name="url"></param>
         /// <param name="isCloseTab"></param>
         /// <returns></returns>
-        public static TabSwitch TabSwitch(this WebDriver webDriver, string url, bool isCloseTab = true)
+        public static TabSwitch TabSwitchFromUrl(this WebDriver webDriver, string url, bool isCloseTab = true)
         {
-            return new TabSwitch(webDriver, url, isCloseTab);
+            return TabSwitch.FromUrl(webDriver, url, isCloseTab);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webDriver"></param>
+        /// <param name="tabId"></param>
+        /// <param name="isCloseTab"></param>
+        /// <returns></returns>
+        public static TabSwitch TabSwitchFromExistTab(this WebDriver webDriver, string tabId, bool isCloseTab = true)
+        {
+            return TabSwitch.FromExistTab(webDriver, tabId, isCloseTab);
         }
         /// <summary>
         /// 
