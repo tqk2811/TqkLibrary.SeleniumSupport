@@ -40,6 +40,22 @@ namespace TqkLibrary.SeleniumSupport
             return webElement.GetWebDriver().ExecuteAsyncScript(script, new object[] { webElement }.Concat(args).ToArray());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="task"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static async Task UnWrapAsync<T>(this Task<T> task, Action<T> action)
+        {
+            if (task is null) throw new ArgumentNullException(nameof(task));
+            if (action is null) throw new ArgumentNullException(nameof(action));
+            T t = await task;
+            action.Invoke(t);
+        }
+
         #region JSDropFile
         /// <summary>
         /// 
