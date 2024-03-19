@@ -53,7 +53,7 @@ namespace TqkLibrary.SeleniumSupport
             if (string.IsNullOrEmpty(userDataDir)) throw new ArgumentNullException(nameof(userDataDir));
             chromeOptions.AddArgument($"--user-data-dir={userDataDir}");
             if (!string.IsNullOrWhiteSpace(profileDirectory)) 
-                chromeOptions.AddArgument($"--profile-directory=\"{profileDirectory}\"");
+                chromeOptions.AddArgument($"--profile-directory={profileDirectory}");
             return chromeOptions;
         }
 

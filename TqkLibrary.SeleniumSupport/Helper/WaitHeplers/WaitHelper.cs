@@ -38,7 +38,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <summary>
         /// 
         /// </summary>
-        public WaitHelper(BaseChromeProfile baseChromeProfile, CancellationToken cancellationToken) : this(baseChromeProfile.chromeDriver!, cancellationToken)
+        public WaitHelper(BaseChromeProfile baseChromeProfile, CancellationToken cancellationToken) : this(baseChromeProfile._chromeDriver!, cancellationToken)
         {
 
         }

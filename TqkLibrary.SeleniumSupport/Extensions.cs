@@ -37,7 +37,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="offsetY"></param>
         public static void JsDropFile(this IWebElement webElement, string file, int offsetX, int offsetY)
         {
-            IWebElement input = (IWebElement)webElement.GetJavaScriptExecutor().ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
+            IWebElement input = (IWebElement)webElement.GetWebDriver().ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
             input.SendKeys(file);
         }
 
@@ -50,7 +50,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="webElement"></param>
         public static void JsDoubleClick(this IWebElement webElement)
         {
-            webElement.GetJavaScriptExecutor().ExecuteScript(@"var evt = document.createEvent('MouseEvents');
+            webElement.GetWebDriver().ExecuteScript(@"var evt = document.createEvent('MouseEvents');
 evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0,null);
 arguments[0].dispatchEvent(evt);", webElement);
         }
@@ -61,7 +61,7 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <param name="webElement"></param>
         public static void JsClick(this IWebElement webElement)
         {
-            webElement.GetJavaScriptExecutor().ExecuteScript("arguments[0].click();", webElement);
+            webElement.GetWebDriver().ExecuteScript("arguments[0].click();", webElement);
         }
 
         #endregion JsClick
@@ -73,7 +73,7 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <param name="webElement"></param>
         public static void JsScrollIntoView(this IWebElement webElement)
         {
-            webElement.GetJavaScriptExecutor().ExecuteScript("arguments[0].scrollIntoView();", webElement);
+            webElement.GetWebDriver().ExecuteScript("arguments[0].scrollIntoView();", webElement);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <param name="text"></param>
         public static void JsSetInputText(this IWebElement webElement, string text)
         {
-            webElement.GetJavaScriptExecutor().ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
+            webElement.GetWebDriver().ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <returns></returns>
         public static byte[]? JsScreenshot_html2canvas(this IWebElement webElement)
         {
-            IJavaScriptExecutor javaScriptExecutor = webElement.GetJavaScriptExecutor();
+            IJavaScriptExecutor javaScriptExecutor = webElement.GetWebDriver();
             javaScriptExecutor.ExecuteScript(Resource.html2canvas_min);
             string? res = javaScriptExecutor.ExecuteAsyncScript("html2canvas(arguments[0]).then(canvas => { arguments[1](canvas.toDataURL('image/png')); })", webElement) as string;
             if (string.IsNullOrWhiteSpace(res))

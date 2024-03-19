@@ -7,10 +7,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using TqkLibrary.SeleniumSupport.Helper;
 using TqkLibrary.SeleniumSupport.Helper.WaitHeplers;
+using TqkLibrary.SeleniumSupport.Interfaces;
 
 namespace TqkLibrary.SeleniumSupport
 {
@@ -27,20 +30,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        protected static readonly Random rd = new Random();
-        /// <summary>
-        /// 
-        /// </summary>
-        protected ChromeDriverService? _service;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? ChromeDriverPath { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
         public bool HideCommandPromptWindow { get; set; } = true;
-        private CancellationTokenRegistration? cancellationTokenRegistration;
         /// <summary>
         /// 
         /// </summary>
@@ -48,52 +38,63 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
+        public string? ChromeDriverDirPath { get; set; }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsOpenChrome
         {
-            get { return chromeDriver != null || (process != null && !process.HasExited); }
+            get { return _chromeDriver != null || (_process != null && !_process.HasExited); }
         }
         /// <summary>
         /// 
         /// </summary>
-        public bool IsOpenProcess { get { return IsOpenChrome && process != null; } }
+        public bool IsOpenProcess { get { return IsOpenChrome && _process != null; } }
 
         /// <summary>
         /// 
         /// </summary>
-        public bool IsOpenSelenium { get { return IsOpenChrome && chromeDriver != null; } }
+        public bool IsOpenSelenium { get { return IsOpenChrome && _chromeDriver != null; } }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public CancellationToken? Token { get { return tokenSource?.Token; } }
-        /// <summary>
-        /// 
-        /// </summary>
-        internal protected ChromeDriver? chromeDriver { get; private set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        protected CancellationTokenSource? tokenSource { get; private set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        protected Process? process { get; private set; }
         /// <summary>
         /// 
         /// </summary>
         public event RunningStateChange? StateChange;
+
+
+
+
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ChromeDriverPath"></param>
-        public BaseChromeProfile(string ChromeDriverPath)
+        protected ChromeDriverService? _service { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        protected Process? _process { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        protected IControlChromeProcess? _remoteChromeProcess { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        internal protected ChromeDriver? _chromeDriver { get; set; }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ChromeDriverDirPath"></param>
+        public BaseChromeProfile(string ChromeDriverDirPath)
         {
-            if (string.IsNullOrEmpty(ChromeDriverPath))
-            {
-                ChromeDriverPath = Directory.GetCurrentDirectory() + "\\AppData\\ChromeDriver";
-            }
-            this.ChromeDriverPath = ChromeDriverPath;
-            if (!Directory.Exists(ChromeDriverPath)) Directory.CreateDirectory(ChromeDriverPath);
+            this.ChromeDriverDirPath = ChromeDriverDirPath;
+            if (!Directory.Exists(ChromeDriverDirPath))
+                Directory.CreateDirectory(ChromeDriverDirPath);
         }
 
         /// <summary>
@@ -148,30 +149,75 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <param name="chromeOptions"></param>
         /// <param name="chromeDriverService"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public bool OpenChrome(ChromeOptions chromeOptions, ChromeDriverService? chromeDriverService = null, CancellationToken cancellationToken = default)
+        public virtual bool OpenChrome(ChromeOptions chromeOptions, ChromeDriverService? chromeDriverService = null)
         {
             if (!IsOpenChrome)
             {
                 if (chromeDriverService != null) _service = chromeDriverService;
                 else
                 {
-                    _service = ChromeDriverService.CreateDefaultService(ChromeDriverPath);
+                    _service = ChromeDriverService.CreateDefaultService(ChromeDriverDirPath);
                     _service.HideCommandPromptWindow = HideCommandPromptWindow;
                 }
 
-                tokenSource = new CancellationTokenSource();
-                cancellationTokenRegistration = cancellationToken.Register(() => { if (tokenSource?.IsCancellationRequested == false) tokenSource.Cancel(); });
                 try
                 {
-                    chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
+                    _chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
                 }
                 catch
                 {
                     _service.Dispose();
                     _service = null;
-                    return false;
+                    throw;
+                }
+                finally
+                {
+                    StateChange?.Invoke(IsOpenChrome);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chromeOptions"></param>
+        /// <param name="remoteChromeProcess"></param>
+        /// <param name="chromeDriverService"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public virtual async Task<bool> OpenChromeConnectExistedDebugAsync(
+            ChromeOptions chromeOptions,
+            IControlChromeProcess remoteChromeProcess,
+            ChromeDriverService? chromeDriverService = null,
+            CancellationToken cancellationToken = default
+            )
+        {
+            if (!IsOpenChrome)
+            {
+                if (!await remoteChromeProcess.GetIsOpenChromeAsync())
+                    await remoteChromeProcess.OpenChromeAsync();
+
+                chromeOptions.DebuggerAddress = await remoteChromeProcess.GetDebuggerAddressAsync();
+
+                if (chromeDriverService != null) _service = chromeDriverService;
+                else
+                {
+                    _service = ChromeDriverService.CreateDefaultService(ChromeDriverDirPath);
+                    _service.HideCommandPromptWindow = HideCommandPromptWindow;
+                }
+
+                try
+                {
+                    _chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
+                }
+                catch
+                {
+                    _service.Dispose();
+                    _service = null;
+                    throw;
                 }
                 finally
                 {
@@ -188,27 +234,36 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="Arguments"></param>
         /// <param name="ChromePath"></param>
         /// <returns></returns>
-        public Process? OpenChromeWithoutSelenium(string Arguments, string? ChromePath = null)
+        public virtual Process? OpenChromeWithoutSelenium(string Arguments, string? ChromePath = null)
         {
             if (!IsOpenChrome)
             {
-                process = new Process();
-                if (!string.IsNullOrEmpty(ChromePath)) process.StartInfo.FileName = ChromePath;
-                else process.StartInfo.FileName = ChromeDriverUpdater.GetChromePath();
-                process.StartInfo.WorkingDirectory = new FileInfo(process.StartInfo.FileName).Directory!.FullName;
-                process.StartInfo.Arguments = Arguments;
-                process.EnableRaisingEvents = true;
-                process.Exited += Process_Exited;
-                process.Start();
+                _process = new Process();
+                if (!File.Exists(ChromePath)) ChromePath = ChromeDriverUpdater.GetChromePath();
+                _process.StartInfo.FileName = ChromePath;
+                _process.StartInfo.WorkingDirectory = new FileInfo(_process.StartInfo.FileName).Directory!.FullName;
+                _process.StartInfo.Arguments = Arguments;
+                _process.EnableRaisingEvents = true;
+                _process.Exited += Process_Exited;
+                try
+                {
+                    _process.Start();
+                }
+                catch
+                {
+                    _process.Dispose();
+                    _process = null;
+                    throw;
+                }
                 StateChange?.Invoke(IsOpenChrome);
-                return process;
+                return _process;
             }
             return null;
         }
 
         private void Process_Exited(object? sender, EventArgs e)
         {
-            this.process = null;
+            this._process = null;
             StateChange?.Invoke(IsOpenChrome);
         }
 
@@ -216,37 +271,34 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public bool CloseChrome()
+        public virtual async Task CloseChromeAsync(CancellationToken cancellationToken = default)
         {
             if (IsOpenChrome)
             {
                 bool callStateChange = true;
-                if (process?.HasExited == false)
+                if (_process?.HasExited == false)
                 {
-                    process?.Kill();
+                    _process?.Kill();
                     callStateChange = false;
                 }
-                process?.Dispose();
-                process = null;
-                chromeDriver?.Quit();
-                chromeDriver = null;
+                _process?.Dispose();
+                _process = null;
+                _chromeDriver?.Quit();
+                _chromeDriver = null;
                 _service?.Dispose();
                 _service = null;
-                cancellationTokenRegistration?.Dispose();
-                cancellationTokenRegistration = null;
-                tokenSource?.Dispose();
-                tokenSource = null;
+                Task? task = _remoteChromeProcess?.CloseChromeAsync(cancellationToken);
+                if (task is not null) await task;
+                _remoteChromeProcess = null;
                 if (callStateChange) StateChange?.Invoke(IsOpenChrome);
-                return true;
             }
-            return false;
         }
+
 
         /// <summary>
         /// 
         /// </summary>
-        public void Stop() => tokenSource?.Cancel();
-
+        protected static readonly Random rd = new Random();
         /// <summary>
         /// 
         /// </summary>
@@ -261,18 +313,13 @@ namespace TqkLibrary.SeleniumSupport
         {
             DelayAsync(time, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
-
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task DelayAsync(int time, CancellationToken cancellationToken = default)
+        public Task DelayAsync(int time, CancellationToken cancellationToken = default)
         {
-            TaskCompletionSource<object?> tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using var register = cancellationToken.Register(() => tcs.TrySetCanceled());
-            using var register2 = tokenSource?.Token.Register(() => tcs.TrySetCanceled());
-            _ = Task.Delay(time).ContinueWith((t) => tcs.TrySetResult(null), TaskContinuationOptions.RunContinuationsAsynchronously);
-            await tcs.Task.ConfigureAwait(false);
+            return Task.Delay(time, cancellationToken);
         }
         /// <summary>
         /// 
@@ -283,6 +330,8 @@ namespace TqkLibrary.SeleniumSupport
             return DelayAsync(rd.Next(min, max), cancellationToken);
         }
 
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -290,22 +339,34 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            if (chromeDriver is null) throw new InvalidOperationException($"{nameof(chromeDriver)} is null, need start chrome first");
-            return chromeDriver.FindElements(by);
+            if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
+            return _chromeDriver.FindElements(by);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cssSelector"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public ReadOnlyCollection<IWebElement> FindElements(string cssSelector)
+        {
+            if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
+            return _chromeDriver.FindElements(cssSelector);
+        }
+
+
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElement"></param>
         /// <returns></returns>
-        public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver!, webElement);
+        public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(_chromeDriver!, webElement);
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public TabSwitch TabSwitch(string url, bool isCloseOnDispose = true) => new TabSwitch(chromeDriver!, url) { IsCloseTab = isCloseOnDispose };
-
+        public TabSwitch TabSwitch(string url, bool isCloseOnDispose = true) => new TabSwitch(_chromeDriver!, url) { IsCloseTab = isCloseOnDispose };
         /// <summary>
         /// 
         /// </summary>
@@ -317,13 +378,13 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         public void InitUndectedChromeDriver()
         {
-            if (this.chromeDriver is null) return;
+            if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
 
             var parameters = new Dictionary<string, object>
             {
                 ["source"] = "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
             };
-            this.chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
+            this._chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
 
             parameters = new Dictionary<string, object>
             {
@@ -336,8 +397,30 @@ while(objectToInspect !== null){
 }
 result.forEach(p => p.match(/.+_.+_(Array|Promise|Symbol)/ig) && delete window[p] && console.log('removed',p))"
             };
-            this.chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
+            this._chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static int GetFreePort()
+        {
+            bool IsFree(int port)
+            {
+                IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
+                IPEndPoint[] listeners = properties.GetActiveTcpListeners();
+                int[] openPorts = listeners.Select(item => item.Port).ToArray<int>();
+                return !openPorts.Contains(port);
+            }
+
+            int port = 0;
+            Random random = new Random(DateTime.Now.Millisecond);
+            do
+            {
+                port = random.Next(10000, 65535);
+            } while (!IsFree(port));
+            return port;
+        }
     }
 }
