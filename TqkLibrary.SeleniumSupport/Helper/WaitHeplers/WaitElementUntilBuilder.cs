@@ -1,5 +1,7 @@
 ﻿using OpenQA.Selenium;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -15,6 +17,22 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         {
             _waitElementBuilder = waitElementBuilder ?? throw new ArgumentNullException(nameof(waitElementBuilder));
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         /// <summary>
         /// 
@@ -57,19 +75,28 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
 
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public static bool ElementsExists(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0;
 
-        public static bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed);
+        public static IEnumerable<IWebElement> ElementsExists(IEnumerable<IWebElement> webElements)
+            => webElements;
 
-        public static bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed);
+        public static IEnumerable<IWebElement> AllElementsVisible(IEnumerable<IWebElement> webElements)
+            => webElements.Any() && webElements.All(x => x.Displayed) ? webElements : Enumerable.Empty<IWebElement>();
 
-        public static bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Displayed && x.Enabled);
+        public static IEnumerable<IWebElement> AnyElementsVisible(IEnumerable<IWebElement> webElements)
+            => webElements.Where(x => x.Displayed);
 
-        public static bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Displayed && x.Enabled);
+        public static IEnumerable<IWebElement> AllElementsClickable(IEnumerable<IWebElement> webElements)
+            => webElements.Any() && webElements.All(x => x.Displayed && x.Enabled) ? webElements : Enumerable.Empty<IWebElement>();
 
-        public static bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Count > 0 && webElements.All(x => x.Selected);
+        public static IEnumerable<IWebElement> AnyElementsClickable(IEnumerable<IWebElement> webElements)
+            => webElements.Where(x => x.Displayed && x.Enabled);
 
-        public static bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements.Any(x => x.Selected);
+        public static IEnumerable<IWebElement> AllElementsSelected(IEnumerable<IWebElement> webElements)
+            => webElements.Any() && webElements.All(x => x.Selected) ? webElements : Enumerable.Empty<IWebElement>();
+
+        public static IEnumerable<IWebElement> AnyElementsSelected(IEnumerable<IWebElement> webElements)
+            => webElements.Where(x => x.Selected);
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

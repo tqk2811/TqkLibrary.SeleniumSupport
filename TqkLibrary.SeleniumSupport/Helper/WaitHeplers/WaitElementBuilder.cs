@@ -29,16 +29,19 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             this._searchContext = searchContext ?? throw new ArgumentNullException(nameof(searchContext));
         }
 
-        Func<ReadOnlyCollection<IWebElement>, bool>? funcCheck = null;
+        List<Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>> _funcFilters = new List<Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>>();
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="funcCheck"></param>
+        /// <param name="funcFilters"></param>
         /// <returns></returns>
-        public WaitElementBuilder Until(Func<ReadOnlyCollection<IWebElement>, bool> funcCheck)
+        public WaitElementBuilder Until(params Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>[] funcFilters)
         {
-            this.funcCheck = funcCheck;
+            if (funcFilters is null || funcFilters.Length == 0 || funcFilters.Any(x => x is null))
+                throw new ArgumentNullException(nameof(funcFilters));
+
+            this._funcFilters.AddRange(funcFilters);
             return this;
         }
         /// <summary>
@@ -54,7 +57,8 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <exception cref="ChromeAutoException"></exception>
         public async Task<ReadOnlyCollection<IWebElement>> StartAsync()
         {
-            if (funcCheck is null) throw new InvalidOperationException($"Must call {nameof(Until)} function first");
+            if (_funcFilters.Count == 0) throw new InvalidOperationException($"Must call {nameof(Until)} function first");
+
             _waitHepler.WriteLog($"WaitUntilElements {_by}");
             using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GetTimeout);
             while (!cancellationTokenSource.IsCancellationRequested)
@@ -69,8 +73,14 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                         await task;
                     }
                 }
-                var eles = _searchContext.FindElements(_by);
-                if (funcCheck(eles))
+                ReadOnlyCollection<IWebElement> eles = _searchContext.FindElements(_by);
+
+                IEnumerable<IWebElement> filtered = eles;
+                foreach (Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>> funcFilter in _funcFilters)
+                {
+                    filtered = funcFilter(filtered).ToList();
+                }
+                if (filtered.Any())
                 {
                     _waitHepler.WriteLog($"WaitUntilElements {_by}, founds {eles.Count}");
                     return eles;
