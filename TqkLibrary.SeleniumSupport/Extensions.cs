@@ -43,6 +43,15 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static FrameSwitch GetFrameSwitch(this IWebElement webElement)
+            => new FrameSwitch(webElement);
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="task"></param>
         /// <param name="action"></param>
