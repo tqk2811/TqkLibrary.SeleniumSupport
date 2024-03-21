@@ -134,21 +134,22 @@ namespace TqkLibrary.SeleniumSupport
             ChromeOptions options = new ChromeOptions();
             if (!string.IsNullOrEmpty(BinaryLocation)) options.BinaryLocation = BinaryLocation;
             options.AddArguments("--no-sandbox");
-            options.AddArgument("--disable-notifications");
+            options.AddArgument("--disable-notifications");//disable noti
             options.AddArgument("--disable-web-security");
-            options.AddArgument("--disable-translate");
+            options.AddArgument("--disable-translate");//disable ask for translate
             options.AddArgument("--disable-blink-features");
             options.AddArgument("--disable-blink-features=AutomationControlled");
-            options.AddArgument("--disable-popup-blocking");
-            options.AddArgument("--disable-infobars");
-            options.AddArgument("--ignore-certificate-errors");
+            options.AddArgument("--disable-popup-blocking");//disable ask permision for clipboard,....
+            options.AddArgument("--disable-infobars");//remove 'Chrome is being controlled by.....'
+            options.AddArgument("--ignore-certificate-errors");//ignore ssl error
             options.AddArgument("--allow-running-insecure-content");
             options.AddAdditionalOption("useAutomationExtension", false);
             options.AddExcludedArgument("enable-automation");
-            //options.c
+
             //disable ask password
             options.AddUserProfilePreference("credentials_enable_service", false);
             options.AddUserProfilePreference("profile.password_manager_enabled", false);
+
             return options;
         }
 
