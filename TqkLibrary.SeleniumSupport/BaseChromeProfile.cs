@@ -99,27 +99,34 @@ namespace TqkLibrary.SeleniumSupport
 
         /// <summary>
         /// <strong>AddArguments:</strong>
-        /// <para>--no-sandbox<br/>
+        /// <para>
+        /// --no-sandbox<br/>
         /// --disable-notifications<br/>
         /// --disable-web-security<br/>
-        /// --disable-blink-features<br/>
         /// --disable-translate<br/>
-        /// --disable-notifications<br/>
+        /// --disable-blink-features<br/>
         /// --disable-blink-features=AutomationControlled<br/>
+        /// --disable-popup-blocking<br/>
         /// --disable-infobars<br/>
         /// --ignore-certificate-errors<br/>
-        /// --ignore-certificate-errors<br/>
-        /// --allow-running-insecure-content</para>
+        /// --allow-running-insecure-content
+        /// </para>
         ///
         /// <strong>AddExcludedArgument:</strong>
-        /// <para>enable-automation</para>
+        /// <para>
+        /// enable-automation
+        /// </para>
         ///
         /// <strong>AddAdditionalCapability:</strong>
-        /// <para>useAutomationExtension false</para>
+        /// <para>
+        /// useAutomationExtension false
+        /// </para>
         ///
         /// <strong>AddUserProfilePreference:</strong>
-        /// <para>credentials_enable_service false<br/>
-        /// profile.password_manager_enabled false</para>
+        /// <para>
+        /// credentials_enable_service false<br/>
+        /// profile.password_manager_enabled false
+        /// </para>
         /// </summary>
         /// <returns></returns>
         public ChromeOptions DefaultChromeOptions(string? BinaryLocation = null)
@@ -132,6 +139,7 @@ namespace TqkLibrary.SeleniumSupport
             options.AddArgument("--disable-translate");
             options.AddArgument("--disable-blink-features");
             options.AddArgument("--disable-blink-features=AutomationControlled");
+            options.AddArgument("--disable-popup-blocking");
             options.AddArgument("--disable-infobars");
             options.AddArgument("--ignore-certificate-errors");
             options.AddArgument("--allow-running-insecure-content");
