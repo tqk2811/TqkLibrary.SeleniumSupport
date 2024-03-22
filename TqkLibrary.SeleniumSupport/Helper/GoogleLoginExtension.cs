@@ -1,5 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
-using OpenQA.Selenium.Chrome;
+﻿using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
 using System.IO;

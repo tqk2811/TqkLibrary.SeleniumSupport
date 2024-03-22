@@ -1,4 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
+﻿using System.IO.Compression;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.IO;
@@ -11,20 +11,6 @@ namespace TqkLibrary.SeleniumSupport
     /// </summary>
     public static class ProxyLoginExtension
     {
-        internal class CustomStaticDataSource : IStaticDataSource, IDisposable
-        {
-            private readonly MemoryStream memoryStream;
-
-            public CustomStaticDataSource(string content)
-            {
-                this.memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-            }
-
-            public void Dispose() => memoryStream.Dispose();
-
-            public Stream GetSource() => memoryStream;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -47,14 +33,18 @@ namespace TqkLibrary.SeleniumSupport
             {
                 if (File.Exists(path)) try { File.Delete(path); } catch { }
 
-                using ZipFile zipFile = ZipFile.Create(path);
-                zipFile.BeginUpdate();
-                using CustomStaticDataSource manifest = new CustomStaticDataSource(Resource.ProxyLogin_Ext_manifest);
-                zipFile.Add(manifest, "manifest.json");
-                using CustomStaticDataSource background = new CustomStaticDataSource(background_);
-                zipFile.Add(background, "background.js");
-                zipFile.CommitUpdate();
-                zipFile.Close();
+                using FileStream fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
+                using ZipArchive zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Create);
+                using (var stream = zipArchive.CreateEntry("manifest.json").Open())
+                {
+                    var buffer = Encoding.UTF8.GetBytes(Resource.ProxyLogin_Ext_manifest);
+                    stream.Write(buffer, 0, buffer.Length);
+                }
+                using (var stream = zipArchive.CreateEntry("background.js").Open())
+                {
+                    var buffer = Encoding.UTF8.GetBytes(background_);
+                    stream.Write(buffer, 0, buffer.Length);
+                }
             }
             else
             {
