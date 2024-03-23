@@ -146,6 +146,8 @@ namespace TqkLibrary.SeleniumSupport
         {
             if (!IsOpenChrome)
             {
+                if (chromeOptions is null) throw new ArgumentNullException(nameof(chromeOptions));
+                if (chromeDriverService is null) throw new ArgumentNullException(nameof(chromeDriverService));
                 try
                 {
                     _service = chromeDriverService;
@@ -182,6 +184,9 @@ namespace TqkLibrary.SeleniumSupport
         {
             if (!IsOpenChrome)
             {
+                if (remoteChromeProcess is null) throw new ArgumentNullException(nameof(remoteChromeProcess));
+                if (chromeDriverService is null) throw new ArgumentNullException(nameof(chromeDriverService));
+
                 if (!await remoteChromeProcess.GetIsOpenChromeAsync())
                     await remoteChromeProcess.OpenChromeAsync();
 
@@ -192,6 +197,7 @@ namespace TqkLibrary.SeleniumSupport
                 {
                     _service = chromeDriverService;
                     _chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
+                    _remoteChromeProcess = remoteChromeProcess;
                 }
                 catch
                 {
