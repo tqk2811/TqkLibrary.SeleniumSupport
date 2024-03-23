@@ -35,10 +35,6 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         public TimeSpan CommandTimeout { get; set; } = TimeSpan.FromMinutes(3);
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? ChromeDriverDirPath { get; set; }
 
 
         /// <summary>
@@ -83,19 +79,6 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         internal protected ChromeDriver? _chromeDriver { get; set; }
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ChromeDriverDirPath"></param>
-        public BaseChromeProfile(string ChromeDriverDirPath)
-        {
-            this.ChromeDriverDirPath = ChromeDriverDirPath;
-            if (!Directory.Exists(ChromeDriverDirPath))
-                Directory.CreateDirectory(ChromeDriverDirPath);
-        }
 
         /// <summary>
         /// <strong>AddArguments:</strong>
@@ -159,24 +142,18 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="chromeOptions"></param>
         /// <param name="chromeDriverService"></param>
         /// <returns></returns>
-        public virtual bool OpenChrome(ChromeOptions chromeOptions, ChromeDriverService? chromeDriverService = null)
+        public virtual bool OpenChrome(ChromeOptions chromeOptions, ChromeDriverService chromeDriverService)
         {
             if (!IsOpenChrome)
             {
-                if (chromeDriverService != null) _service = chromeDriverService;
-                else
-                {
-                    _service = ChromeDriverService.CreateDefaultService(ChromeDriverDirPath);
-                    _service.HideCommandPromptWindow = HideCommandPromptWindow;
-                }
-
                 try
                 {
+                    _service = chromeDriverService;
                     _chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
                 }
                 catch
                 {
-                    _service.Dispose();
+                    _service?.Dispose();
                     _service = null;
                     throw;
                 }
@@ -198,9 +175,8 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public virtual async Task<bool> OpenChromeConnectExistedDebugAsync(
-            ChromeOptions chromeOptions,
             IControlChromeProcess remoteChromeProcess,
-            ChromeDriverService? chromeDriverService = null,
+            ChromeDriverService chromeDriverService,
             CancellationToken cancellationToken = default
             )
         {
@@ -209,22 +185,17 @@ namespace TqkLibrary.SeleniumSupport
                 if (!await remoteChromeProcess.GetIsOpenChromeAsync())
                     await remoteChromeProcess.OpenChromeAsync();
 
+                ChromeOptions chromeOptions = new ChromeOptions();
                 chromeOptions.DebuggerAddress = await remoteChromeProcess.GetDebuggerAddressAsync();
-
-                if (chromeDriverService != null) _service = chromeDriverService;
-                else
-                {
-                    _service = ChromeDriverService.CreateDefaultService(ChromeDriverDirPath);
-                    _service.HideCommandPromptWindow = HideCommandPromptWindow;
-                }
 
                 try
                 {
+                    _service = chromeDriverService;
                     _chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
                 }
                 catch
                 {
-                    _service.Dispose();
+                    _service?.Dispose();
                     _service = null;
                     throw;
                 }
