@@ -47,6 +47,24 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="funcFilters"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitElementBuilder Until(params Func<IEnumerable<IWebElement>, bool>[] funcFilters)
+        {
+            if (funcFilters is null || funcFilters.Length == 0 || funcFilters.Any(x => x is null))
+                throw new ArgumentNullException(nameof(funcFilters));
+
+            this._funcFilters.AddRange(funcFilters
+                .Select<Func<IEnumerable<IWebElement>, bool>, Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>>(
+                    x => (eles) => x.Invoke(eles) ? eles : Enumerable.Empty<IWebElement>()
+                    )
+                );
+            return this;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
         public WaitElementUntilBuilder Until() => new WaitElementUntilBuilder(this);
 
