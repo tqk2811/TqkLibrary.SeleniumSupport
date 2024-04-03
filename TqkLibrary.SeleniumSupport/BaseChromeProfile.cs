@@ -112,7 +112,7 @@ namespace TqkLibrary.SeleniumSupport
         /// </para>
         /// </summary>
         /// <returns></returns>
-        public ChromeOptions DefaultChromeOptions(string? BinaryLocation = null)
+        public virtual ChromeOptions DefaultChromeOptions(string? BinaryLocation = null)
         {
             ChromeOptions options = new ChromeOptions();
             if (!string.IsNullOrEmpty(BinaryLocation)) options.BinaryLocation = BinaryLocation;
@@ -171,7 +171,6 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="chromeOptions"></param>
         /// <param name="remoteChromeProcess"></param>
         /// <param name="chromeDriverService"></param>
         /// <param name="cancellationToken"></param>
@@ -288,14 +287,14 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        public void Delay(int min, int max, CancellationToken cancellationToken = default)
+        public virtual void Delay(int min, int max, CancellationToken cancellationToken = default)
         {
             Delay(rd.Next(min, max), cancellationToken);
         }
         /// <summary>
         /// 
         /// </summary>
-        public void Delay(int time, CancellationToken cancellationToken = default)
+        public virtual void Delay(int time, CancellationToken cancellationToken = default)
         {
             DelayAsync(time, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
@@ -303,7 +302,7 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task DelayAsync(int time, CancellationToken cancellationToken = default)
+        public virtual Task DelayAsync(int time, CancellationToken cancellationToken = default)
         {
             return Task.Delay(time, cancellationToken);
         }
@@ -311,7 +310,7 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task DelayAsync(int min, int max, CancellationToken cancellationToken = default)
+        public virtual Task DelayAsync(int min, int max, CancellationToken cancellationToken = default)
         {
             return DelayAsync(rd.Next(min, max), cancellationToken);
         }
@@ -323,7 +322,7 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <param name="by"></param>
         /// <returns></returns>
-        public ReadOnlyCollection<IWebElement> FindElements(By by)
+        public virtual ReadOnlyCollection<IWebElement> FindElements(By by)
         {
             if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
             return _chromeDriver.FindElements(by);
@@ -334,7 +333,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="cssSelector"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public ReadOnlyCollection<IWebElement> FindElements(string cssSelector)
+        public virtual ReadOnlyCollection<IWebElement> FindElements(string cssSelector)
         {
             if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
             return _chromeDriver.FindElements(cssSelector);
@@ -347,29 +346,29 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <param name="webElement"></param>
         /// <returns></returns>
-        public FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(_chromeDriver!, webElement);
+        public virtual FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(_chromeDriver!, webElement);
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public TabSwitch TabSwitchFromUrl(string url, bool isCloseOnDispose = true) => TabSwitch.FromUrl(_chromeDriver!, url, isCloseOnDispose);
+        public virtual TabSwitch TabSwitchFromUrl(string url, bool isCloseOnDispose = true) => TabSwitch.FromUrl(_chromeDriver!, url, isCloseOnDispose);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="tabId"></param>
         /// <param name="isCloseOnDispose"></param>
         /// <returns></returns>
-        public TabSwitch TabSwitchFromExistTab(string tabId, bool isCloseOnDispose = true) => TabSwitch.FromExistTab(_chromeDriver!, tabId, isCloseOnDispose);
+        public virtual TabSwitch TabSwitchFromExistTab(string tabId, bool isCloseOnDispose = true) => TabSwitch.FromExistTab(_chromeDriver!, tabId, isCloseOnDispose);
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitHelper WaitHepler(CancellationToken cancellationToken) => new WaitHelper(this, cancellationToken);
+        public virtual WaitHelper WaitHelper(CancellationToken cancellationToken) => new WaitHelper(this, cancellationToken);
 
         /// <summary>
         /// 
         /// </summary>
-        public void InitUndectedChromeDriver()
+        public virtual void InitUndectedChromeDriver()
         {
             if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
 
