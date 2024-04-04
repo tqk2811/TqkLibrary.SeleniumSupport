@@ -57,12 +57,13 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="action"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static async Task UnWrapAsync<T>(this Task<T> task, Action<T> action)
+        public static async Task<T> UnWrapAsync<T>(this Task<T> task, Action<T> action)
         {
             if (task is null) throw new ArgumentNullException(nameof(task));
             if (action is null) throw new ArgumentNullException(nameof(action));
             T t = await task;
             action.Invoke(t);
+            return t;
         }
 
         #region JSDropFile
@@ -73,10 +74,11 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="file"></param>
         /// <param name="offsetX"></param>
         /// <param name="offsetY"></param>
-        public static void JsDropFile(this IWebElement webElement, string file, int offsetX, int offsetY)
+        public static IWebElement JsDropFile(this IWebElement webElement, string file, int offsetX, int offsetY)
         {
             IWebElement input = (IWebElement)webElement.GetWebDriver().ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
             input.SendKeys(file);
+            return webElement;
         }
 
         #endregion JSDropFile
@@ -86,20 +88,22 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <param name="webElement"></param>
-        public static void JsDoubleClick(this IWebElement webElement)
+        public static IWebElement JsDoubleClick(this IWebElement webElement)
         {
             webElement.GetWebDriver().ExecuteScript(@"var evt = document.createEvent('MouseEvents');
 evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0,null);
 arguments[0].dispatchEvent(evt);", webElement);
+            return webElement;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="webElement"></param>
-        public static void JsClick(this IWebElement webElement)
+        public static IWebElement JsClick(this IWebElement webElement)
         {
             webElement.GetWebDriver().ExecuteScript("arguments[0].click();", webElement);
+            return webElement;
         }
 
         #endregion JsClick
@@ -109,9 +113,10 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// 
         /// </summary>
         /// <param name="webElement"></param>
-        public static void JsScrollIntoView(this IWebElement webElement)
+        public static IWebElement JsScrollIntoView(this IWebElement webElement)
         {
             webElement.GetWebDriver().ExecuteScript("arguments[0].scrollIntoView();", webElement);
+            return webElement;
         }
 
         /// <summary>
@@ -119,9 +124,10 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// </summary>
         /// <param name="webElement"></param>
         /// <param name="text"></param>
-        public static void JsSetInputText(this IWebElement webElement, string text)
+        public static IWebElement JsSetInputText(this IWebElement webElement, string text)
         {
             webElement.GetWebDriver().ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
+            return webElement;
         }
 
         /// <summary>
@@ -247,27 +253,41 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElement"></param>
+        /// <param name="t_webElement"></param>
         /// <returns></returns>
-        public static async Task ClickAsync(this Task<IWebElement> webElement)
-            => (await webElement).Click();
+        public static async Task<IWebElement> ClickAsync(this Task<IWebElement> t_webElement)
+        {
+            IWebElement webElement = await t_webElement;
+            webElement.Click();
+            return webElement;
+        }
+
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElement"></param>
+        /// <param name="t_webElement"></param>
         /// <returns></returns>
-        public static async Task ClearAsync(this Task<IWebElement> webElement)
-            => (await webElement).Clear();
+        public static async Task<IWebElement> ClearAsync(this Task<IWebElement> t_webElement)
+        {
+            IWebElement webElement = await t_webElement;
+            webElement.Clear();
+            return webElement;
+        }
+
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElement"></param>
+        /// <param name="t_webElement"></param>
         /// <param name="text"></param>
         /// <returns></returns>
-        public static async Task SendKeysAsync(this Task<IWebElement> webElement, string text)
-            => (await webElement).SendKeys(text);
+        public static async Task<IWebElement> SendKeysAsync(this Task<IWebElement> t_webElement, string text)
+        {
+            IWebElement webElement = await t_webElement;
+            webElement.SendKeys(text);
+            return webElement;
+        }
 
         /// <summary>
         /// 
@@ -299,9 +319,14 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElement"></param>
+        /// <param name="t_webElement"></param>
         /// <returns></returns>
-        public static async Task SubmitAsync(this Task<IWebElement> webElement) => (await webElement).Submit();
+        public static async Task<IWebElement> SubmitAsync(this Task<IWebElement> t_webElement)
+        {
+            IWebElement webElement = await t_webElement;
+            webElement.Submit();
+            return webElement;
+        }
 
         /// <summary>
         /// 
