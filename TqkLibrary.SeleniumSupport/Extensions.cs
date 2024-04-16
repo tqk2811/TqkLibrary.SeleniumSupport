@@ -37,7 +37,7 @@ namespace TqkLibrary.SeleniumSupport
         {
             if (webElement is null) throw new ArgumentNullException(nameof(webElement));
             if (args is null) args = new string[] { };
-            return webElement.GetWebDriver().ExecuteAsyncScript(script, new object[] { webElement }.Concat(args).ToArray());
+            return webElement.GetWebDriver().ExecuteScript(script, new object[] { webElement }.Concat(args).ToArray());
         }
 
         /// <summary>
