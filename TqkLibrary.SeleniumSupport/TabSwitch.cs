@@ -89,12 +89,19 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         public void Dispose()
         {
-            string current = this._webDriver.CurrentWindowHandle;
-            if (IsCloseTab)
+            try
             {
-                _webDriver.ExecuteScript("window.close();");
+                string current = this._webDriver.CurrentWindowHandle;
+                if (IsCloseTab)
+                {
+                    _webDriver.ExecuteScript("window.close();");
+                }
             }
-            if (!string.IsNullOrWhiteSpace(OldWindowHandle) && !current.Equals(OldWindowHandle))
+            catch (NoSuchWindowException)
+            {
+                //in some case window auto close
+            }
+            if (!string.IsNullOrWhiteSpace(OldWindowHandle))
             {
                 this._webDriver.SwitchTo().Window(OldWindowHandle);
             }
