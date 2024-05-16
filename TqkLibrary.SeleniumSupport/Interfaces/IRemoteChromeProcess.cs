@@ -28,5 +28,11 @@ namespace TqkLibrary.SeleniumSupport.Interfaces
         /// 
         /// </summary>
         Task CloseChromeAsync(CancellationToken cancellationToken = default);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<string?> GetBinaryLocation(CancellationToken cancellationToken = default);
     }
 }

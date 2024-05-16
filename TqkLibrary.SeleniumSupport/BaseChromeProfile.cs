@@ -185,8 +185,10 @@ namespace TqkLibrary.SeleniumSupport
                     await remoteChromeProcess.OpenChromeAsync();
 
                 ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.DebuggerAddress = await remoteChromeProcess.GetDebuggerAddressAsync();
-
+                chromeOptions.DebuggerAddress = await remoteChromeProcess.GetDebuggerAddressAsync(cancellationToken);
+                string? BinaryLocation = await remoteChromeProcess.GetBinaryLocation(cancellationToken);
+                if (!string.IsNullOrWhiteSpace(BinaryLocation))
+                    chromeOptions.BinaryLocation = BinaryLocation;
                 try
                 {
                     ChromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
