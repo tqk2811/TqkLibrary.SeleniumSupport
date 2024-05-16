@@ -42,7 +42,7 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         public bool IsOpenChrome
         {
-            get { return _chromeDriver != null || (_process != null && !_process.HasExited); }
+            get { return ChromeDriver != null || (_process != null && !_process.HasExited); }
         }
         /// <summary>
         /// 
@@ -52,7 +52,7 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
-        public bool IsOpenSelenium { get { return IsOpenChrome && _chromeDriver != null; } }
+        public bool IsOpenSelenium { get { return IsOpenChrome && ChromeDriver != null; } }
 
         /// <summary>
         /// 
@@ -60,25 +60,26 @@ namespace TqkLibrary.SeleniumSupport
         public event RunningStateChange? StateChange;
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual ChromeDriver? ChromeDriver { get; private set; }
 
 
 
         /// <summary>
         /// 
         /// </summary>
-        protected ChromeDriverService? _service { get; set; }
+        protected virtual ChromeDriverService? _service { get; private set; }
         /// <summary>
         /// 
         /// </summary>
-        protected Process? _process { get; set; }
+        protected virtual Process? _process { get; private set; }
         /// <summary>
         /// 
         /// </summary>
-        protected IControlChromeProcess? _remoteChromeProcess { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        internal protected ChromeDriver? _chromeDriver { get; set; }
+        protected virtual IControlChromeProcess? _remoteChromeProcess { get; private set; }
+
 
         /// <summary>
         /// <strong>AddArguments:</strong>
@@ -150,7 +151,7 @@ namespace TqkLibrary.SeleniumSupport
                 if (chromeDriverService is null) throw new ArgumentNullException(nameof(chromeDriverService));
                 try
                 {
-                    _chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
+                    ChromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
                     _service = chromeDriverService;
                 }
                 finally
@@ -188,7 +189,7 @@ namespace TqkLibrary.SeleniumSupport
 
                 try
                 {
-                    _chromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
+                    ChromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
                     _remoteChromeProcess = remoteChromeProcess;
                     _service = chromeDriverService;
                 }
@@ -256,8 +257,8 @@ namespace TqkLibrary.SeleniumSupport
                 }
                 _process?.Dispose();
                 _process = null;
-                _chromeDriver?.Quit();
-                _chromeDriver = null;
+                ChromeDriver?.Quit();
+                ChromeDriver = null;
                 _service?.Dispose();
                 _service = null;
                 Task? task = _remoteChromeProcess?.CloseChromeAsync(cancellationToken);
@@ -312,8 +313,8 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public virtual ReadOnlyCollection<IWebElement> FindElements(By by)
         {
-            if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
-            return _chromeDriver.FindElements(by);
+            if (ChromeDriver is null) throw new InvalidOperationException($"{nameof(ChromeDriver)} is null, need start chrome first");
+            return ChromeDriver.FindElements(by);
         }
         /// <summary>
         /// 
@@ -323,8 +324,8 @@ namespace TqkLibrary.SeleniumSupport
         /// <exception cref="InvalidOperationException"></exception>
         public virtual ReadOnlyCollection<IWebElement> FindElements(string cssSelector)
         {
-            if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
-            return _chromeDriver.FindElements(cssSelector);
+            if (ChromeDriver is null) throw new InvalidOperationException($"{nameof(ChromeDriver)} is null, need start chrome first");
+            return ChromeDriver.FindElements(cssSelector);
         }
 
 
@@ -334,19 +335,19 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         /// <param name="webElement"></param>
         /// <returns></returns>
-        public virtual FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(_chromeDriver!, webElement);
+        public virtual FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(ChromeDriver!, webElement);
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public virtual TabSwitch TabSwitchFromUrl(string url, bool isCloseOnDispose = true) => TabSwitch.FromUrl(_chromeDriver!, url, isCloseOnDispose);
+        public virtual TabSwitch TabSwitchFromUrl(string url, bool isCloseOnDispose = true) => TabSwitch.FromUrl(ChromeDriver!, url, isCloseOnDispose);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="tabId"></param>
         /// <param name="isCloseOnDispose"></param>
         /// <returns></returns>
-        public virtual TabSwitch TabSwitchFromExistTab(string tabId, bool isCloseOnDispose = true) => TabSwitch.FromExistTab(_chromeDriver!, tabId, isCloseOnDispose);
+        public virtual TabSwitch TabSwitchFromExistTab(string tabId, bool isCloseOnDispose = true) => TabSwitch.FromExistTab(ChromeDriver!, tabId, isCloseOnDispose);
         /// <summary>
         /// 
         /// </summary>
@@ -358,13 +359,13 @@ namespace TqkLibrary.SeleniumSupport
         /// </summary>
         public virtual void InitUndectedChromeDriver()
         {
-            if (_chromeDriver is null) throw new InvalidOperationException($"{nameof(_chromeDriver)} is null, need start chrome first");
+            if (ChromeDriver is null) throw new InvalidOperationException($"{nameof(ChromeDriver)} is null, need start chrome first");
 
             var parameters = new Dictionary<string, object>
             {
                 ["source"] = "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
             };
-            this._chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
+            this.ChromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
 
             parameters = new Dictionary<string, object>
             {
@@ -377,7 +378,7 @@ while(objectToInspect !== null){
 }
 result.forEach(p => p.match(/.+_.+_(Array|Promise|Symbol)/ig) && delete window[p] && console.log('removed',p))"
             };
-            this._chromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
+            this.ChromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
         }
 
         /// <summary>
