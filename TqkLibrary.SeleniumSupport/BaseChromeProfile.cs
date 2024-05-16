@@ -178,17 +178,18 @@ namespace TqkLibrary.SeleniumSupport
         {
             if (!IsOpenChrome)
             {
-                if (remoteChromeProcess is null) throw new ArgumentNullException(nameof(remoteChromeProcess));
-                if (chromeDriverService is null) throw new ArgumentNullException(nameof(chromeDriverService));
+                if (remoteChromeProcess is null)
+                    throw new ArgumentNullException(nameof(remoteChromeProcess));
+                if (chromeDriverService is null)
+                    throw new ArgumentNullException(nameof(chromeDriverService));
 
-                if (!await remoteChromeProcess.GetIsOpenChromeAsync())
-                    await remoteChromeProcess.OpenChromeAsync();
+                ChromeOptions chromeOptions = await remoteChromeProcess.GetChromeOptionsAsync(cancellationToken);
+                if (chromeOptions is null)
+                    throw new InvalidOperationException($"{typeof(IControlChromeProcess).FullName}.{nameof(IControlChromeProcess.GetChromeOptionsAsync)} return null");
 
-                ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.DebuggerAddress = await remoteChromeProcess.GetDebuggerAddressAsync(cancellationToken);
-                string? BinaryLocation = await remoteChromeProcess.GetBinaryLocation(cancellationToken);
-                if (!string.IsNullOrWhiteSpace(BinaryLocation))
-                    chromeOptions.BinaryLocation = BinaryLocation;
+                if (!await remoteChromeProcess.GetIsOpenChromeAsync(cancellationToken))
+                    await remoteChromeProcess.OpenChromeAsync(null, cancellationToken);
+
                 try
                 {
                     ChromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);

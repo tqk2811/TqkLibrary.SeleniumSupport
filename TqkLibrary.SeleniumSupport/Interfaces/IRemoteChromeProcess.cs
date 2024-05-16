@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenQA.Selenium.Chrome;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,10 +13,6 @@ namespace TqkLibrary.SeleniumSupport.Interfaces
     /// </summary>
     public interface IControlChromeProcess
     {
-        /// <summary>
-        /// Should be of the form "{hostname|IP address}:port.
-        /// </summary>
-        Task<string> GetDebuggerAddressAsync(CancellationToken cancellationToken = default);
         /// <summary>
         /// 
         /// </summary>
@@ -33,6 +30,6 @@ namespace TqkLibrary.SeleniumSupport.Interfaces
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<string?> GetBinaryLocation(CancellationToken cancellationToken = default);
+        Task<ChromeOptions> GetChromeOptionsAsync(CancellationToken cancellationToken = default);
     }
 }
