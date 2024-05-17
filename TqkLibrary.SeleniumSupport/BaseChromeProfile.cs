@@ -192,7 +192,7 @@ namespace TqkLibrary.SeleniumSupport
 
                 try
                 {
-                    ChromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
+                    ChromeDriver = new ChromeDriver(chromeDriverService, chromeOptions, CommandTimeout);
                     _remoteChromeProcess = remoteChromeProcess;
                     _service = chromeDriverService;
                 }
