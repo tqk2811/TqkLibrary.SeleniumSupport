@@ -151,7 +151,7 @@ namespace TqkLibrary.SeleniumSupport
                 if (chromeDriverService is null) throw new ArgumentNullException(nameof(chromeDriverService));
                 try
                 {
-                    ChromeDriver = new ChromeDriver(_service, chromeOptions, CommandTimeout);
+                    ChromeDriver = new ChromeDriver(chromeDriverService, chromeOptions, CommandTimeout);
                     _service = chromeDriverService;
                 }
                 finally
