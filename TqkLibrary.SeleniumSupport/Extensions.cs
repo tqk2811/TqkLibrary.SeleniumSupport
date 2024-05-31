@@ -39,6 +39,21 @@ namespace TqkLibrary.SeleniumSupport
             if (args is null) args = new string[] { };
             return webElement.GetWebDriver().ExecuteScript(script, new object[] { webElement }.Concat(args).ToArray());
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="script"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static object ExecuteScript(this IWebElement webElement, string script, params object[] args)
+        {
+            if (webElement is null) throw new ArgumentNullException(nameof(webElement));
+            if (args is null) args = new object[] { };
+            return webElement.GetWebDriver().ExecuteScript(script, new object[] { webElement }.Concat(args).ToArray());
+        }
+
 
         /// <summary>
         /// 
@@ -48,6 +63,13 @@ namespace TqkLibrary.SeleniumSupport
         public static FrameSwitch GetFrameSwitch(this IWebElement webElement)
             => new FrameSwitch(webElement);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static IWebElement? GetParentElement(this IWebElement webElement)
+            => webElement.ExecuteScript("return arguments[0].parentNode;", new object[] { }) as IWebElement;
 
         /// <summary>
         /// 
@@ -105,7 +127,17 @@ arguments[0].dispatchEvent(evt);", webElement);
             webElement.GetWebDriver().ExecuteScript("arguments[0].click();", webElement);
             return webElement;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <returns></returns>
+        public static async Task<IWebElement> JsClickAsync(this Task<IWebElement> t_webElement)
+        {
+            IWebElement webElement = await t_webElement;
+            webElement.GetWebDriver().ExecuteScript("arguments[0].click();", webElement);
+            return webElement;
+        }
         #endregion JsClick
 
 
