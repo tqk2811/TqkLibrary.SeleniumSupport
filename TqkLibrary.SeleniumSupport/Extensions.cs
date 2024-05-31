@@ -26,21 +26,9 @@ namespace TqkLibrary.SeleniumSupport
             IWrapsDriver wrapsDriver = (IWrapsDriver)webElement;
             return (WebDriver)wrapsDriver.WrappedDriver;
         }
+
         /// <summary>
         /// with webElement as first arguments
-        /// </summary>
-        /// <param name="webElement"></param>
-        /// <param name="script"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static object ExecuteScript(this IWebElement webElement, string script, params string[] args)
-        {
-            if (webElement is null) throw new ArgumentNullException(nameof(webElement));
-            if (args is null) args = new string[] { };
-            return webElement.GetWebDriver().ExecuteScript(script, new object[] { webElement }.Concat(args).ToArray());
-        }
-        /// <summary>
-        /// 
         /// </summary>
         /// <param name="webElement"></param>
         /// <param name="script"></param>
