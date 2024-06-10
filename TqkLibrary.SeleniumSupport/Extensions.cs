@@ -191,6 +191,25 @@ arguments[0].dispatchEvent(evt);", webElement);
 
         #endregion JsClick
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        public static IWebElement JsSetInnerHtml(this IWebElement webElement, string html)
+        {
+            webElement.ExecuteScript("arguments[0].innerHTML = arguments[1];", html);
+            return webElement;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        public static Task<IWebElement> JsSetInnerHtmlAsync(this Task<IWebElement> t_webElement, string html)
+            => t_webElement.UnWrapAsync((e) => e.JsSetInnerHtml(html));
 
         /// <summary>
         /// 
