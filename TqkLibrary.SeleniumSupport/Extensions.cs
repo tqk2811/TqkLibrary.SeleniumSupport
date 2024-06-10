@@ -17,6 +17,40 @@ namespace TqkLibrary.SeleniumSupport
         /// <summary>
         /// 
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="task"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static async Task<T> UnWrapAsync<T>(this Task<T> task, Action<T> action)
+        {
+            if (task is null) throw new ArgumentNullException(nameof(task));
+            if (action is null) throw new ArgumentNullException(nameof(action));
+            T t = await task;
+            action.Invoke(t);
+            return t;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TElement"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="task"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static async Task<TResult> UnWrapAsync<TElement, TResult>(this Task<TElement> task, Func<TElement, TResult> func)
+        {
+            if (task is null) throw new ArgumentNullException(nameof(task));
+            if (func is null) throw new ArgumentNullException(nameof(func));
+            TElement t = await task;
+            return func.Invoke(t);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="webElement"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
@@ -26,6 +60,7 @@ namespace TqkLibrary.SeleniumSupport
             IWrapsDriver wrapsDriver = (IWrapsDriver)webElement;
             return (WebDriver)wrapsDriver.WrappedDriver;
         }
+
 
         /// <summary>
         /// with webElement as first arguments
@@ -42,7 +77,27 @@ namespace TqkLibrary.SeleniumSupport
             return webElement.GetWebDriver().ExecuteScript(script, new object[] { webElement }.Concat(args).ToArray());
         }
 
+        /// <summary>
+        /// with webElement as first arguments
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <param name="script"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static Task<object> ExecuteScriptAsync(this Task<IWebElement> t_webElement, string script, params object[] args)
+            => t_webElement.UnWrapAsync((e) => e.ExecuteScript(script, args));
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        [Obsolete]
+        public static FrameSwitch FrameSwitch(this IWebElement webElement)
+        {
+            return new FrameSwitch(webElement.GetWebDriver(), webElement);
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -50,6 +105,14 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns></returns>
         public static FrameSwitch GetFrameSwitch(this IWebElement webElement)
             => new FrameSwitch(webElement);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <returns></returns>
+        public static Task<FrameSwitch> GetFrameSwitchAsync(this Task<IWebElement> t_webElement)
+            => t_webElement.UnWrapAsync((e) => new FrameSwitch(e));
+
 
         /// <summary>
         /// 
@@ -59,22 +122,8 @@ namespace TqkLibrary.SeleniumSupport
         public static IWebElement? GetParentElement(this IWebElement webElement)
             => webElement.ExecuteScript("return arguments[0].parentNode;", new object[] { }) as IWebElement;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="task"></param>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static async Task<T> UnWrapAsync<T>(this Task<T> task, Action<T> action)
-        {
-            if (task is null) throw new ArgumentNullException(nameof(task));
-            if (action is null) throw new ArgumentNullException(nameof(action));
-            T t = await task;
-            action.Invoke(t);
-            return t;
-        }
+
+
 
         #region JSDropFile
         /// <summary>
@@ -90,6 +139,16 @@ namespace TqkLibrary.SeleniumSupport
             input.SendKeys(file);
             return webElement;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <param name="file"></param>
+        /// <param name="offsetX"></param>
+        /// <param name="offsetY"></param>
+        /// <returns></returns>
+        public static Task<IWebElement> JsDropFileAsync(this Task<IWebElement> t_webElement, string file, int offsetX, int offsetY)
+            => t_webElement.UnWrapAsync((e) => e.JsDropFile(file, offsetX, offsetY));
 
         #endregion JSDropFile
 
@@ -105,6 +164,13 @@ evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, f
 arguments[0].dispatchEvent(evt);", webElement);
             return webElement;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <returns></returns>
+        public static Task<IWebElement> JsDoubleClickAsync(this Task<IWebElement> t_webElement)
+            => t_webElement.UnWrapAsync((e) => e.JsDoubleClick());
 
         /// <summary>
         /// 
@@ -120,12 +186,9 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// </summary>
         /// <param name="t_webElement"></param>
         /// <returns></returns>
-        public static async Task<IWebElement> JsClickAsync(this Task<IWebElement> t_webElement)
-        {
-            IWebElement webElement = await t_webElement;
-            webElement.GetWebDriver().ExecuteScript("arguments[0].click();", webElement);
-            return webElement;
-        }
+        public static Task<IWebElement> JsClickAsync(this Task<IWebElement> t_webElement)
+            => t_webElement.UnWrapAsync((e) => e.JsClick());
+
         #endregion JsClick
 
 
@@ -138,6 +201,14 @@ arguments[0].dispatchEvent(evt);", webElement);
             webElement.GetWebDriver().ExecuteScript("arguments[0].scrollIntoView();", webElement);
             return webElement;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <returns></returns>
+        public static Task<IWebElement> JsScrollIntoViewAsync(this Task<IWebElement> t_webElement)
+            => t_webElement.UnWrapAsync((e) => e.JsScrollIntoView());
+
 
         /// <summary>
         /// 
@@ -149,6 +220,14 @@ arguments[0].dispatchEvent(evt);", webElement);
             webElement.GetWebDriver().ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
             return webElement;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static Task<IWebElement> JsSetInputTextAsync(this Task<IWebElement> t_webElement, string text)
+            => t_webElement.UnWrapAsync((e) => e.JsSetInputText(text));
 
         /// <summary>
         /// 
@@ -192,15 +271,7 @@ arguments[0].dispatchEvent(evt);", webElement);
         {
             return TabSwitch.FromExistTab(webDriver, tabId, isCloseTab);
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="webElement"></param>
-        /// <returns></returns>
-        public static FrameSwitch FrameSwitch(this IWebElement webElement)
-        {
-            return new FrameSwitch(webElement.GetWebDriver(), webElement);
-        }
+
 
         #region LinQ Async
 
