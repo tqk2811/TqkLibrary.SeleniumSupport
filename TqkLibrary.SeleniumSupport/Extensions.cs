@@ -215,6 +215,28 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// 
         /// </summary>
         /// <param name="webElement"></param>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        public static IWebElement JsSetInnerText(this IWebElement webElement, string html)
+        {
+            webElement.ExecuteScript("arguments[0].innerText = arguments[1];", html);
+            return webElement;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        public static Task<IWebElement> JsSetInnerTextAsync(this Task<IWebElement> t_webElement, string html)
+            => t_webElement.UnWrapAsync((e) => e.JsSetInnerText(html));
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
         public static IWebElement JsScrollIntoView(this IWebElement webElement)
         {
             webElement.GetWebDriver().ExecuteScript("arguments[0].scrollIntoView();", webElement);
