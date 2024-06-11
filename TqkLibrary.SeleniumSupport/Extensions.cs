@@ -231,7 +231,20 @@ arguments[0].dispatchEvent(evt);", webElement);
         public static Task<IWebElement> JsSetInnerTextAsync(this Task<IWebElement> t_webElement, string html)
             => t_webElement.UnWrapAsync((e) => e.JsSetInnerText(html));
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static bool JsIsHidden(this IWebElement webElement)
+            => (bool)webElement.ExecuteScript("return arguments[0].offsetParent === null;");
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <returns></returns>
+        public static Task<bool> JsIsHiddenAsync(this Task<IWebElement> t_webElement)
+            => t_webElement.UnWrapAsync((e) => e.JsIsHidden());
 
         /// <summary>
         /// 
