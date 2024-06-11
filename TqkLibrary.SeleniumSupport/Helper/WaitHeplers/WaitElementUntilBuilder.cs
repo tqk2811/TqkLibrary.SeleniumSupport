@@ -12,25 +12,81 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
     /// </summary>
     public class WaitElementUntilBuilder
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public class WaitElementUntilBuilderChild
+        {
+            readonly WaitElementUntilBuilder _waitElementUntilBuilder;
+            readonly Func<IEnumerable<IWebElement>, Func<IWebElement, bool>, IEnumerable<IWebElement>> _func;
+            internal WaitElementUntilBuilderChild(
+                WaitElementUntilBuilder waitElementUntilBuilder,
+                Func<IEnumerable<IWebElement>, Func<IWebElement, bool>, IEnumerable<IWebElement>> func
+                )
+            {
+                this._waitElementUntilBuilder = waitElementUntilBuilder;
+                this._func = func;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            public WaitElementBuilder Visible()
+                => _waitElementUntilBuilder._waitElementBuilder.Until((eles) => _func.Invoke(eles, x => x.Displayed));
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            public WaitElementBuilder Selected()
+                => _waitElementUntilBuilder._waitElementBuilder.Until((eles) => _func.Invoke(eles, x => x.Selected));
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            public WaitElementBuilder Clickable()
+                => _waitElementUntilBuilder._waitElementBuilder.Until((eles) => _func.Invoke(eles, x => x.Displayed && x.Enabled));
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            public WaitElementBuilder NotHidden()
+                => _waitElementUntilBuilder._waitElementBuilder.Until((eles) => _func.Invoke(eles, x => !x.JsIsHidden()));
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="func"></param>
+            /// <returns></returns>
+            public WaitElementBuilder Condition(Func<IWebElement,bool> func)
+                => _waitElementUntilBuilder._waitElementBuilder.Until((eles) => _func.Invoke(eles, x => func.Invoke(x)));
+
+        }
+
         readonly WaitElementBuilder _waitElementBuilder;
         internal WaitElementUntilBuilder(WaitElementBuilder waitElementBuilder)
         {
             _waitElementBuilder = waitElementBuilder ?? throw new ArgumentNullException(nameof(waitElementBuilder));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public WaitElementUntilBuilderChild Any()
+            => new WaitElementUntilBuilderChild(this, (eles, contition) => eles.Where(contition));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public WaitElementUntilBuilderChild All()
+            => new WaitElementUntilBuilderChild(this, (eles, contition) => eles.Any() && eles.All(contition) ? eles : Enumerable.Empty<IWebElement>());
 
 
-
-
-
-
-
-
-
-
-
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public WaitElementBuilder ElementsExists() => _waitElementBuilder.Until(x => x);
 
 
 
@@ -38,65 +94,50 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder ElementsExists() => _waitElementBuilder.Until(ElementsExists);
+        [Obsolete]
+        public WaitElementBuilder AllElementsVisible() => All().Visible();
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder AllElementsVisible() => _waitElementBuilder.Until(AllElementsVisible);
+        [Obsolete]
+        public WaitElementBuilder AnyElementsVisible() => Any().Visible();
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder AnyElementsVisible() => _waitElementBuilder.Until(AnyElementsVisible);
+        [Obsolete]
+        public WaitElementBuilder AllElementsClickable() => All().Clickable();
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder AllElementsClickable() => _waitElementBuilder.Until(AllElementsClickable);
+        [Obsolete]
+        public WaitElementBuilder AnyElementsClickable() => Any().Clickable();
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder AnyElementsClickable() => _waitElementBuilder.Until(AnyElementsClickable);
+        [Obsolete]
+        public WaitElementBuilder AllElementsSelected() => All().Selected();
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder AllElementsSelected() => _waitElementBuilder.Until(AllElementsSelected);
+        [Obsolete]
+        public WaitElementBuilder AnyElementsSelected() => Any().Selected();
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementBuilder AnyElementsSelected() => _waitElementBuilder.Until(AnyElementsSelected);
+        [Obsolete]
+        public WaitElementBuilder AllElementsNotHidden() => All().NotHidden();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete]
+        public WaitElementBuilder AnyElementsNotHidden() => Any().NotHidden();
 
-
-
-
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public static IEnumerable<IWebElement> ElementsExists(IEnumerable<IWebElement> webElements)
-            => webElements;
-
-        public static IEnumerable<IWebElement> AllElementsVisible(IEnumerable<IWebElement> webElements)
-            => webElements.Any() && webElements.All(x => x.Displayed) ? webElements : Enumerable.Empty<IWebElement>();
-
-        public static IEnumerable<IWebElement> AnyElementsVisible(IEnumerable<IWebElement> webElements)
-            => webElements.Where(x => x.Displayed);
-
-        public static IEnumerable<IWebElement> AllElementsClickable(IEnumerable<IWebElement> webElements)
-            => webElements.Any() && webElements.All(x => x.Displayed && x.Enabled) ? webElements : Enumerable.Empty<IWebElement>();
-
-        public static IEnumerable<IWebElement> AnyElementsClickable(IEnumerable<IWebElement> webElements)
-            => webElements.Where(x => x.Displayed && x.Enabled);
-
-        public static IEnumerable<IWebElement> AllElementsSelected(IEnumerable<IWebElement> webElements)
-            => webElements.Any() && webElements.All(x => x.Selected) ? webElements : Enumerable.Empty<IWebElement>();
-
-        public static IEnumerable<IWebElement> AnyElementsSelected(IEnumerable<IWebElement> webElements)
-            => webElements.Where(x => x.Selected);
-
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }
