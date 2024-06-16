@@ -16,6 +16,10 @@ namespace TqkLibrary.SeleniumSupport.Interfaces
         /// <summary>
         /// 
         /// </summary>
+        int? ProcessId { get; }
+        /// <summary>
+        /// 
+        /// </summary>
         Task<bool> GetIsOpenChromeAsync(CancellationToken cancellationToken = default);
         /// <summary>
         /// 
