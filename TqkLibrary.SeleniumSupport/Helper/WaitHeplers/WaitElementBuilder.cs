@@ -17,6 +17,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
     {
         readonly By _by;
         readonly ISearchContext _searchContext;
+        bool _isExpectedNotExist = false;
         internal WaitElementBuilder(
             WaitHelper waitHepler,
             By by,
@@ -34,9 +35,33 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="funcFilters"></param>
+        /// <param name="isExpectedExist"></param>
         /// <returns></returns>
-        public WaitElementBuilder Until(params Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>[] funcFilters)
+        public WaitElementBuilder Expected(bool isExpectedExist)
+        {
+            _isExpectedNotExist = !isExpectedExist;
+            return this;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public WaitElementBuilder ExpectedNotExist()
+        {
+            _isExpectedNotExist = true;
+            return this;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public WaitElementBuilder ExpectedExist()
+        {
+            _isExpectedNotExist = false;
+            return this;
+        }
+
+        WaitElementBuilder _Until(params Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>[] funcFilters)
         {
             if (funcFilters is null || funcFilters.Length == 0 || funcFilters.Any(x => x is null))
                 throw new ArgumentNullException(nameof(funcFilters));
@@ -44,13 +69,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             this._funcFilters.AddRange(funcFilters);
             return this;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="funcFilters"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public WaitElementBuilder Until(params Func<IEnumerable<IWebElement>, bool>[] funcFilters)
+        WaitElementBuilder _Until(params Func<IEnumerable<IWebElement>, bool>[] funcFilters)
         {
             if (funcFilters is null || funcFilters.Length == 0 || funcFilters.Any(x => x is null))
                 throw new ArgumentNullException(nameof(funcFilters));
@@ -62,11 +81,74 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                 );
             return this;
         }
+        WaitElementUntilBuilder _Until() => new WaitElementUntilBuilder(this);
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="funcFilters"></param>
+        /// <returns></returns>
+        public WaitElementBuilder Until(params Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>[] funcFilters)
+        {
+            _isExpectedNotExist = false;
+            return _Until(funcFilters);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="funcFilters"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitElementBuilder Until(params Func<IEnumerable<IWebElement>, bool>[] funcFilters)
+        {
+            _isExpectedNotExist = false;
+            return _Until(funcFilters);
+        }
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public WaitElementUntilBuilder Until() => new WaitElementUntilBuilder(this);
+        public WaitElementUntilBuilder Until()
+        {
+            _isExpectedNotExist = false;
+            return _Until();
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="funcFilters"></param>
+        /// <returns></returns>
+        public WaitElementBuilder UntilNotExist(params Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>>[] funcFilters)
+        {
+            _isExpectedNotExist = true;
+            return _Until(funcFilters);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="funcFilters"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitElementBuilder UntilNotExist(params Func<IEnumerable<IWebElement>, bool>[] funcFilters)
+        {
+            _isExpectedNotExist = true;
+            return _Until(funcFilters);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public WaitElementUntilBuilder UntilNotExist()
+        {
+            _isExpectedNotExist = true;
+            return _Until();
+        }
+
 
         /// <summary>
         /// 
@@ -98,10 +180,21 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                 {
                     filtered = funcFilter(filtered).ToList();
                 }
-                if (filtered.Any())
+                if (_isExpectedNotExist)
                 {
-                    _waitHepler.WriteLog($"WaitUntilElements {_by}, founds {eles.Count}");
-                    return eles;
+                    if (!filtered.Any())
+                    {
+                        _waitHepler.WriteLog($"WaitUntilElements {_by}, disapped");
+                        return eles;
+                    }
+                }
+                else
+                {
+                    if (filtered.Any())
+                    {
+                        _waitHepler.WriteLog($"WaitUntilElements {_by}, founds {eles.Count}");
+                        return eles;
+                    }
                 }
                 await Task.Delay(this._waitHepler.Delay, this._waitHepler._cancellationToken).ConfigureAwait(false);
             }
