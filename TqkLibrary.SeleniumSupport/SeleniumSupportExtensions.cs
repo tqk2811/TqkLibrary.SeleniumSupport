@@ -12,8 +12,16 @@ namespace TqkLibrary.SeleniumSupport
     /// <summary>
     /// 
     /// </summary>
-    public static class Extensions
+    public static class SeleniumSupportExtensions
     {
+        static readonly Random _random =
+#if NET6_0_OR_GREATER
+            Random.Shared;
+#else
+            new Random(DateTime.Now.GetHashCode());
+#endif
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -332,66 +340,81 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
         /// <returns></returns>
-        public static async Task<IWebElement> FirstAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements).First();
+        public static async Task<IWebElement> FirstAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements)
+            => (await t_webElements).First();
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
         /// <returns></returns>
-        public static async Task<IWebElement?> FirstOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements)?.FirstOrDefault();
+        public static async Task<IWebElement?> FirstOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements)
+            => (await t_webElements)?.FirstOrDefault();
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
         /// <returns></returns>
-        public static async Task<IWebElement> LastAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements).Last();
+        public static async Task<IWebElement> LastAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements)
+            => (await t_webElements).Last();
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
         /// <returns></returns>
-        public static async Task<IWebElement?> LastOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements)?.LastOrDefault();
+        public static async Task<IWebElement?> LastOrDefaultAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements)
+            => (await t_webElements)?.LastOrDefault();
+
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
+        /// <param name="random"></param>
+        /// <returns></returns>
+        public static async Task<IWebElement?> TakeRandomAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements, Random? random = null)
+        {
+            random = random ?? _random;
+            var webElements = await t_webElements;
+            return webElements.Skip(random.Next(webElements.Count)).FirstOrDefault();
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElements"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static async Task<bool> AnyAsync(this Task<ReadOnlyCollection<IWebElement>> webElements, Func<IWebElement, bool> predicate)
-            => (await webElements).Any(predicate);
+        public static async Task<bool> AnyAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements, Func<IWebElement, bool> predicate)
+            => (await t_webElements).Any(predicate);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static async Task<bool> AllAsync(this Task<ReadOnlyCollection<IWebElement>> webElements, Func<IWebElement, bool> predicate)
-            => (await webElements).All(predicate);
+        public static async Task<bool> AllAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements, Func<IWebElement, bool> predicate)
+            => (await t_webElements).All(predicate);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
         /// <returns></returns>
-        public static async Task<int> CountAsync(this Task<ReadOnlyCollection<IWebElement>> webElements)
-            => (await webElements).Count();
+        public static async Task<int> CountAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements)
+            => (await t_webElements).Count();
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="webElements"></param>
+        /// <param name="t_webElements"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static async Task<int> CountAsync(this Task<ReadOnlyCollection<IWebElement>> webElements, Func<IWebElement, bool> predicate)
-            => (await webElements).Count(predicate);
+        public static async Task<int> CountAsync(this Task<ReadOnlyCollection<IWebElement>> t_webElements, Func<IWebElement, bool> predicate)
+            => (await t_webElements).Count(predicate);
 
         #endregion
 
