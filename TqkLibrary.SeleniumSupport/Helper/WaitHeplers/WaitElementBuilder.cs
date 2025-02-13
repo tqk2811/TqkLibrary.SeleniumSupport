@@ -175,7 +175,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                 }
                 ReadOnlyCollection<IWebElement> eles = _searchContext.FindElements(_by);
 
-                IEnumerable<IWebElement> filtered = eles;
+                IList<IWebElement> filtered = eles;
                 foreach (Func<IEnumerable<IWebElement>, IEnumerable<IWebElement>> funcFilter in _funcFilters)
                 {
                     filtered = funcFilter(filtered).ToList();
@@ -185,7 +185,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                     if (!filtered.Any())
                     {
                         _waitHepler.WriteLog($"WaitUntilElements {_by}, disapped");
-                        return eles;
+                        return new ReadOnlyCollection<IWebElement>(filtered);
                     }
                 }
                 else
@@ -193,7 +193,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                     if (filtered.Any())
                     {
                         _waitHepler.WriteLog($"WaitUntilElements {_by}, founds {eles.Count}");
-                        return eles;
+                        return new ReadOnlyCollection<IWebElement>(filtered);
                     }
                 }
                 await Task.Delay(this._waitHepler.Delay, this._waitHepler._cancellationToken).ConfigureAwait(false);
