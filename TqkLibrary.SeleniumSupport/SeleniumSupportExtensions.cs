@@ -314,6 +314,39 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static byte[]? JsGetImage(this IWebElement webElement)
+        {
+            IJavaScriptExecutor javaScriptExecutor = webElement.GetWebDriver();
+            string? res = javaScriptExecutor.ExecuteAsyncScript(@"
+const image = arguments[0];
+const canvas = document.createElement('canvas');
+canvas.width = image.naturalWidth;
+canvas.height = image.naturalHeight;
+canvas.getContext('2d').drawImage(image, 0, 0);
+const dataURL = canvas.toDataURL();
+arguments[1](dataURL);", webElement) as string;
+
+            if (string.IsNullOrWhiteSpace(res))
+            {
+                return null;
+            }
+            else
+            {
+                return Convert.FromBase64String(res!.Substring("data:image/png;base64,".Length));
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <returns></returns>
+        public static async Task<byte[]?> JsGetImageAsync(this Task<IWebElement> t_webElement) => (await t_webElement).JsGetImage();
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="webDriver"></param>
         /// <param name="url"></param>
         /// <param name="isCloseTab"></param>
