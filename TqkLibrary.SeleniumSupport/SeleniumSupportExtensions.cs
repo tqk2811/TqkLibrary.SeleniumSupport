@@ -367,6 +367,30 @@ arguments[1](dataURL);", webElement) as string;
             return TabSwitch.FromExistTab(webDriver, tabId, isCloseTab);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
+        public static IEnumerable<string>? GetChildTextNodes(this IWebElement webElement)
+        {
+            var result = webElement?.ExecuteScript(@"
+let results = [];
+for(let i = 0; i < arguments[0].childNodes.length; i++)
+{
+    if(arguments[0].childNodes[i].nodeType == 3)
+    {
+        results.push(arguments[0].childNodes[i].textContent);
+    }
+}
+return results;
+");
+            if (result is IReadOnlyCollection<object> objects)
+            {
+                return objects.Cast<string>();
+            }
+            return null;
+        }
 
         #region LinQ Async
 
