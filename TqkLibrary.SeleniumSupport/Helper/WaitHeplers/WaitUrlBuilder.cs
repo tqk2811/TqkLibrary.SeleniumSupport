@@ -37,7 +37,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GetTimeout);
             while (!cancellationTokenSource.IsCancellationRequested)
             {
-                this._waitHepler._cancellationToken.ThrowIfCancellationRequested();
+                this._waitHepler.CancellationToken.ThrowIfCancellationRequested();
                 var workAsync = GetWorkAsync;
                 if (workAsync is not null)
                 {
@@ -52,7 +52,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                     _waitHepler.WriteLog($"WaitUntilUrl found: {_waitHepler._webDriver.Url}");
                     return true;
                 }
-                await Task.Delay(this._waitHepler.Delay, this._waitHepler._cancellationToken).ConfigureAwait(false);
+                await Task.Delay(this._waitHepler.Delay, this._waitHepler.CancellationToken).ConfigureAwait(false);
             }
             if (_IsThrow) throw new ChromeAutoException($"Wait Url failed, current url: {_waitHepler._webDriver.Url}");
             return false;

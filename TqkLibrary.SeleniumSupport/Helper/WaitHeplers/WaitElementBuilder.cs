@@ -163,7 +163,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
             using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(GetTimeout);
             while (!cancellationTokenSource.IsCancellationRequested)
             {
-                this._waitHepler._cancellationToken.ThrowIfCancellationRequested();
+                this._waitHepler.CancellationToken.ThrowIfCancellationRequested();
                 var workAsync = GetWorkAsync;
                 if (workAsync is not null)
                 {
@@ -196,7 +196,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
                         return new ReadOnlyCollection<IWebElement>(filtered);
                     }
                 }
-                await Task.Delay(this._waitHepler.Delay, this._waitHepler._cancellationToken).ConfigureAwait(false);
+                await Task.Delay(this._waitHepler.Delay, this._waitHepler.CancellationToken).ConfigureAwait(false);
             }
             if (_IsThrow) throw new ChromeAutoException(_by.ToString());
             return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
