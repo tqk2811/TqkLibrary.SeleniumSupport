@@ -24,7 +24,10 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// </summary>
         public int DefaultTimeout { get; set; } = 30000;
         internal readonly IWebDriver _webDriver;
-        internal readonly CancellationToken _cancellationToken;
+        /// <summary>
+        /// 
+        /// </summary>
+        public CancellationToken CancellationToken { get; }
         /// <summary>
         /// 
         /// </summary>
@@ -38,17 +41,17 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <summary>
         /// 
         /// </summary>
-        public WaitHelper(BaseChromeProfile baseChromeProfile, CancellationToken cancellationToken) : this(baseChromeProfile.ChromeDriver!, cancellationToken)
+        public WaitHelper(BaseChromeProfile baseChromeProfile, CancellationToken cancellationToken = default) : this(baseChromeProfile.ChromeDriver!, cancellationToken)
         {
 
         }
         /// <summary>
         /// 
         /// </summary>
-        public WaitHelper(IWebDriver webDriver, CancellationToken cancellationToken)
+        public WaitHelper(IWebDriver webDriver, CancellationToken cancellationToken = default)
         {
             _webDriver = webDriver ?? throw new ArgumentNullException(nameof(webDriver));
-            this._cancellationToken = cancellationToken;
+            this.CancellationToken = cancellationToken;
         }
 
         internal Func<Task>? _WorkAsync = null;
