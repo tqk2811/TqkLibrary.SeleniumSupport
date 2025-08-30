@@ -23,7 +23,10 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// When timeout is less than or equal zero
         /// </summary>
         public int DefaultTimeout { get; set; } = 30000;
-        internal readonly IWebDriver _webDriver;
+        /// <summary>
+        /// 
+        /// </summary>
+        public IWebDriver WebDriver { get; }
         /// <summary>
         /// 
         /// </summary>
@@ -50,7 +53,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// </summary>
         public WaitHelper(IWebDriver webDriver, CancellationToken cancellationToken = default)
         {
-            _webDriver = webDriver ?? throw new ArgumentNullException(nameof(webDriver));
+            WebDriver = webDriver ?? throw new ArgumentNullException(nameof(webDriver));
             this.CancellationToken = cancellationToken;
         }
 
@@ -92,7 +95,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <returns></returns>
         public WaitElementBuilder WaitUntilElements(string cssSelector)
         {
-            return new WaitElementBuilder(this, By.CssSelector(cssSelector), _webDriver);
+            return new WaitElementBuilder(this, By.CssSelector(cssSelector), WebDriver);
         }
         /// <summary>
         /// 
@@ -101,7 +104,7 @@ namespace TqkLibrary.SeleniumSupport.Helper.WaitHeplers
         /// <returns></returns>
         public WaitElementBuilder WaitUntilElements(By by)
         {
-            return new WaitElementBuilder(this, by, _webDriver);
+            return new WaitElementBuilder(this, by, WebDriver);
         }
         /// <summary>
         /// 
