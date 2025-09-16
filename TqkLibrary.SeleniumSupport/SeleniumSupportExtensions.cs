@@ -253,12 +253,8 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// </summary>
         /// <param name="t_webElement"></param>
         /// <returns></returns>
-        public static async Task<string> JsGetInnerTextAsync(this Task<IWebElement> t_webElement)
-        {
-            IWebElement webElement = await t_webElement;
-            return webElement.ExecuteScript("return arguments[0].innerText;") as string ?? string.Empty;
-        }
-
+        public static Task<string> JsGetInnerTextAsync(this Task<IWebElement> t_webElement)
+            => t_webElement.UnWrapAsync((e) => e.JsGetInnerText());
 
 
         /// <summary>
