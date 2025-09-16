@@ -244,6 +244,28 @@ arguments[0].dispatchEvent(evt);", webElement);
         /// </summary>
         /// <param name="webElement"></param>
         /// <returns></returns>
+        public static string JsGetInnerText(this IWebElement webElement)
+        {
+            return webElement.ExecuteScript("return arguments[0].innerText;") as string ?? string.Empty;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t_webElement"></param>
+        /// <returns></returns>
+        public static async Task<string> JsGetInnerTextAsync(this Task<IWebElement> t_webElement)
+        {
+            IWebElement webElement = await t_webElement;
+            return webElement.ExecuteScript("return arguments[0].innerText;") as string ?? string.Empty;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webElement"></param>
+        /// <returns></returns>
         public static bool JsIsHidden(this IWebElement webElement)
             => (bool)webElement.ExecuteScript("return arguments[0].offsetParent === null;");
         /// <summary>
