@@ -250,7 +250,7 @@ namespace TqkLibrary.SeleniumSupport
         /// 
         /// </summary>
         /// <returns></returns>
-        public virtual async Task CloseChromeAsync()
+        public virtual async Task CloseChromeAsync(CancellationToken cancellationToken = default)
         {
             if (IsOpenChrome)
             {
