@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using TqkLibrary.SeleniumSupport.Helper;
 using TqkLibrary.SeleniumSupport.Helper.WaitHeplers;
 using TqkLibrary.SeleniumSupport.Interfaces;
+using TqkLibrary.WinApi.FindWindowHelper;
 
 namespace TqkLibrary.SeleniumSupport
 {
@@ -244,29 +245,67 @@ namespace TqkLibrary.SeleniumSupport
             StateChange?.Invoke(IsOpenChrome);
         }
 
+        const uint WM_CLOSE = 0x0010;
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public virtual async Task CloseChromeAsync(CancellationToken cancellationToken = default)
+        public virtual async Task CloseChromeAsync()
         {
             if (IsOpenChrome)
             {
                 bool callStateChange = true;
-                if (_process?.HasExited == false)
+                if (_process is not null)
                 {
-                    _process?.Kill();
-                    callStateChange = false;
+                    if (_process.HasExited == false)
+                    {
+                        try { _process.Kill(); } catch { }
+                        callStateChange = false;
+                    }
+                    else
+                    {
+                        ProcessHelper processHelper = new ProcessHelper(_process.Id);
+                        foreach (var window in processHelper.WindowsTree)
+                        {
+                            window.SendMessage(WM_CLOSE, 0, 0);
+                        }
+                        using CancellationTokenSource timeout = new CancellationTokenSource(5000);
+                        using var register = timeout.Token.Register(() => { try { _process?.Kill(); } catch { } });
+#if NET5_0_OR_GREATER
+                        await _process.WaitForExitAsync();
+#else
+                        TaskCompletionSource<object?> tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+                        _process.Exited += (s, e) => tcs.TrySetResult(null);
+                        if (_process.HasExited) tcs.TrySetResult(null);
+                        await tcs.Task;
+#endif
+                    }
+                    _process.Dispose();
+                    _process = null;
                 }
-                _process?.Dispose();
-                _process = null;
-                ChromeDriver?.Quit();
-                ChromeDriver = null;
-                _service?.Dispose();
-                _service = null;
-                Task? task = _remoteChromeProcess?.CloseChromeAsync(cancellationToken);
-                if (task is not null) await task;
-                _remoteChromeProcess = null;
+                else
+                {
+                    if (ChromeDriver is not null)
+                    {
+                        try
+                        {
+                            var handlers = ChromeDriver.WindowHandles;
+                            foreach (var item in handlers)
+                            {
+                                ChromeDriver.SwitchTo().Window(item);
+                                ChromeDriver.Close();
+                            }
+                        }
+                        catch (Exception) { }
+                    }
+                    ChromeDriver?.Quit();
+                    ChromeDriver = null;
+                    _service?.Dispose();
+                    _service = null;
+                    Task? task = _remoteChromeProcess?.CloseChromeAsync(cancellationToken);
+                    if (task is not null) await task;
+                    _remoteChromeProcess = null;
+                }
                 if (callStateChange) StateChange?.Invoke(IsOpenChrome);
             }
         }
