@@ -15,18 +15,21 @@
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="Newtonsoft.Json" version="13.0.1" />
 				<dependency id="Selenium.WebDriver" version="4.18.1" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.0-build20250616161206" />
 			</group>
 			<group targetFramework="net6.0-windows10.0.17763">
 				<dependency id="Microsoft.Win32.Registry" version="5.0.0" />
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="Newtonsoft.Json" version="13.0.1" />
 				<dependency id="Selenium.WebDriver" version="4.18.1" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.0-build20250616161206" />
 			</group>
 			<group targetFramework="net8.0-windows10.0.17763">
 				<dependency id="Microsoft.Win32.Registry" version="5.0.0" />
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="Newtonsoft.Json" version="13.0.1" />
 				<dependency id="Selenium.WebDriver" version="4.18.1" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.0-build20250616161206" />
 			</group>
 		</dependencies>
 	</metadata>
