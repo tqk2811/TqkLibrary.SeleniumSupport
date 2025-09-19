@@ -217,7 +217,7 @@ namespace TqkLibrary.SeleniumSupport
             {
                 _process = new Process();
                 if (!File.Exists(ChromePath)) ChromePath = ChromeDriverUpdater.GetChromePath();
-                _process.StartInfo.FileName = ChromePath;
+                _process.StartInfo.FileName = ChromePath!;
                 _process.StartInfo.WorkingDirectory = new FileInfo(_process.StartInfo.FileName).Directory!.FullName;
                 _process.StartInfo.Arguments = Arguments;
                 _process.EnableRaisingEvents = true;
