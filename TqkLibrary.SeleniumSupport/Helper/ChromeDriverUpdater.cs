@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿#if WINAPI
+using Microsoft.Win32;
+#endif
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,6 +11,8 @@ using System.IO.Compression;
 using System.IO.Pipes;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,12 +23,20 @@ namespace TqkLibrary.SeleniumSupport
     /// </summary>
     public static class ChromeDriverUpdater
     {
+        static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        static bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
         /// <summary>
-        /// 
+        /// File name of the chromedriver binary for the current OS (chromedriver.exe on Windows, chromedriver elsewhere).
+        /// </summary>
+        static string ChromeDriverFileName => IsWindows ? "chromedriver.exe" : "chromedriver";
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="folderLocation"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns>Directory contain chromedriver.exe</returns>
+        /// <returns>Directory contain chromedriver binary</returns>
         public static Task<string> DownloadAsync(string folderLocation, CancellationToken cancellationToken = default)
         {
             return DownloadAsync(folderLocation, GetChromePath(), cancellationToken);
@@ -35,12 +47,12 @@ namespace TqkLibrary.SeleniumSupport
         /// <returns>Directory contain chromedriver.exe</returns>
         public static async Task<string> DownloadAsync(string folderLocation, string chromePath, CancellationToken cancellationToken = default)
         {
-            var fileVersionInfo = GetChromeVersion(chromePath);
-            if (!Version.TryParse(fileVersionInfo.FileVersion, out Version? version))
-                throw new InvalidOperationException($"invalid version '{version}'");
+            string versionString = GetChromeVersionString(chromePath);
+            if (!Version.TryParse(versionString, out Version? version))
+                throw new InvalidOperationException($"invalid version '{versionString}'");
 
             string[] dirs = Directory.GetDirectories(folderLocation, $"{version.Major}.{version.Minor}.{version.Build}.*");
-            string? targetDir = dirs.FirstOrDefault(x => File.Exists(Path.Combine(x, "chromedriver.exe")));
+            string? targetDir = dirs.FirstOrDefault(x => File.Exists(Path.Combine(x, ChromeDriverFileName)));
 
             if (string.IsNullOrWhiteSpace(targetDir))
             {
@@ -75,29 +87,72 @@ namespace TqkLibrary.SeleniumSupport
         /// <exception cref="FileNotFoundException"></exception>
         public static string GetChromePath()
         {
-            //Path originates from here: https://chromedriver.chromium.org/downloads/version-selection            
-            string chrome64 = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-            string chrome86 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-            if (File.Exists(chrome64)) return chrome64;
-            else if (File.Exists(chrome86)) return chrome86;
-            else using (RegistryKey? key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"))
+            //Path originates from here: https://chromedriver.chromium.org/downloads/version-selection
+            if (IsWindows)
+            {
+                string chrome64 = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+                string chrome86 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+                if (File.Exists(chrome64)) return chrome64;
+                if (File.Exists(chrome86)) return chrome86;
+#if WINAPI
+                using (RegistryKey? key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"))
                 {
-                    object? o = key?.GetValue("");
-                    string? chromePath = o?.ToString();
-                    if (!string.IsNullOrEmpty(chromePath))
-                    {
-                        return chromePath!;
-                    }
+                    string? chromePath = key?.GetValue("")?.ToString();
+                    if (!string.IsNullOrEmpty(chromePath)) return chromePath!;
                 }
-            throw new FileNotFoundException("chrome.exe");
+#endif
+            }
+            else if (IsMacOS)
+            {
+                foreach (string path in new[]
+                {
+                    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+                })
+                    if (File.Exists(path)) return path;
+            }
+            else //Linux
+            {
+                foreach (string path in new[]
+                {
+                    "/usr/bin/google-chrome",
+                    "/usr/bin/google-chrome-stable",
+                    "/usr/bin/chromium",
+                    "/usr/bin/chromium-browser",
+                    "/snap/bin/chromium",
+                })
+                    if (File.Exists(path)) return path;
+            }
+            throw new FileNotFoundException("chrome");
         }
 
-        static FileVersionInfo GetChromeVersion(string productVersionPath)
+        static string GetChromeVersionString(string chromePath)
         {
-            if (string.IsNullOrEmpty(productVersionPath)) throw new ArgumentException("Unable to get version because path is empty");
-            if (!File.Exists(productVersionPath)) throw new FileNotFoundException("Unable to get version because path specifies a file that does not exists");
+            if (string.IsNullOrEmpty(chromePath)) throw new ArgumentException("Unable to get version because path is empty");
+            if (!File.Exists(chromePath)) throw new FileNotFoundException("Unable to get version because path specifies a file that does not exists");
 
-            return FileVersionInfo.GetVersionInfo(productVersionPath);
+            if (IsWindows)
+            {
+                return FileVersionInfo.GetVersionInfo(chromePath).FileVersion
+                    ?? throw new InvalidOperationException($"Unable to read chrome FileVersion from '{chromePath}'");
+            }
+
+            //Linux/macOS: ELF/Mach-O binaries carry no FileVersionInfo → query the browser itself.
+            //e.g. "Google Chrome 126.0.6478.126 " / "Chromium 126.0.6478.126 snap"
+            using Process process = new Process();
+            process.StartInfo.FileName = chromePath;
+            process.StartInfo.Arguments = "--version";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Match match = Regex.Match(output, @"\d+\.\d+\.\d+\.\d+");
+            if (!match.Success) match = Regex.Match(output, @"\d+\.\d+\.\d+");
+            if (match.Success) return match.Value;
+            throw new InvalidOperationException($"Unable to parse chrome version from: '{output.Trim()}'");
         }
 
         class KnownGoodVersionsWithDownloads
@@ -146,8 +201,20 @@ namespace TqkLibrary.SeleniumSupport
 
         static IEnumerable<string> GetSupportPlatforms()
         {
-            if (Environment.Is64BitOperatingSystem) yield return "win64";
-            yield return "win32";
+            if (IsWindows)
+            {
+                if (Environment.Is64BitOperatingSystem) yield return "win64";
+                yield return "win32";
+            }
+            else if (IsMacOS)
+            {
+                if (RuntimeInformation.OSArchitecture == Architecture.Arm64) yield return "mac-arm64";
+                yield return "mac-x64";
+            }
+            else //Linux
+            {
+                yield return "linux64";
+            }
         }
         static async Task<string> GetURLToDownloadAsync(this HttpClient httpClient, Version need_version, CancellationToken cancellationToken = default)
         {
@@ -197,7 +264,8 @@ namespace TqkLibrary.SeleniumSupport
             using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, urlToPathLocation);
             using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
             html = await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStringAsync();
-            return "https://chromedriver.storage.googleapis.com/" + html + "/chromedriver_win32.zip";
+            string oldPlatform = IsWindows ? "win32" : (IsMacOS ? "mac64" : "linux64");
+            return $"https://chromedriver.storage.googleapis.com/{html}/chromedriver_{oldPlatform}.zip";
         }
 
         static async Task<string> DownloadNewVersionOfChromeAsync(this HttpClient httpClient, string tarGetDir, string urlToDownload, CancellationToken cancellationToken = default)
@@ -219,16 +287,44 @@ namespace TqkLibrary.SeleniumSupport
 
             memoryStream.Seek(0, SeekOrigin.Begin);
             using ZipArchive zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-            ZipArchiveEntry? entry = zipArchive.Entries.FirstOrDefault(x => x.Name.Contains("chromedriver.exe"));
+            ZipArchiveEntry? entry = zipArchive.Entries.FirstOrDefault(x => x.Name.Equals(ChromeDriverFileName, StringComparison.OrdinalIgnoreCase));
             if (entry is not null)
             {
-                entry.ExtractToFile(Path.Combine(tarGetDir, "chromedriver.exe"), true);
+                string driverPath = Path.Combine(tarGetDir, ChromeDriverFileName);
+                entry.ExtractToFile(driverPath, true);
+                if (!IsWindows) SetExecutable(driverPath);
                 return tarGetDir;
             }
             else
             {
-                throw new Exception($"chromedriver.exe not found in zip file");
+                throw new Exception($"{ChromeDriverFileName} not found in zip file");
             }
+        }
+
+        /// <summary>
+        /// Mark the extracted chromedriver as executable on Linux/macOS (zip entries lose the +x bit).
+        /// </summary>
+        static void SetExecutable(string path)
+        {
+#if NET7_0_OR_GREATER
+            if (OperatingSystem.IsWindows()) return;
+            File.SetUnixFileMode(path,
+                UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+#else
+            try
+            {
+                using Process process = new Process();
+                process.StartInfo.FileName = "chmod";
+                process.StartInfo.Arguments = $"+x \"{path}\"";
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+                process.WaitForExit();
+            }
+            catch { }
+#endif
         }
     }
 }

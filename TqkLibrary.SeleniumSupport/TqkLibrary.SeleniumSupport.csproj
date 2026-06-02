@@ -3,7 +3,7 @@
 	<Import Project="..\ProjectBuildProperties.targets" />
 
 	<PropertyGroup>
-		<TargetFrameworks>net462;net6.0-windows10.0.17763;net8.0-windows10.0.17763</TargetFrameworks>
+		<TargetFrameworks>net462;net6.0;net6.0-windows10.0.17763;net8.0;net8.0-windows10.0.17763</TargetFrameworks>
 		<LangVersion>11.0</LangVersion>
 		<Platforms>AnyCPU</Platforms>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -15,12 +15,29 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<!-- Windows-only targets (net462 + *-windows*) get WinApi/Registry features, gated by the WINAPI symbol. -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net462' or $(TargetFramework.Contains('windows'))">
+		<DefineConstants>$(DefineConstants);WINAPI</DefineConstants>
+	</PropertyGroup>
+
+	<!-- Cross-platform dependencies (all targets, incl. plain net6.0/net8.0 for Linux/macOS). -->
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="Selenium.WebDriver" Version="4.18.1" />
+		<PackageReference Include="Selenium.WebDriver" Version="4.44.0" />
+		<!-- Selenium 4.44 surfaces IAsyncDisposable but doesn't declare this dep itself. -->
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+	</ItemGroup>
+
+	<!-- Windows-only dependencies. -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net462' or $(TargetFramework.Contains('windows'))">
+		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 		<PackageReference Include="TqkLibrary.WinApi" Version="1.0.0-build20250616161206" />
+	</ItemGroup>
+
+	<!-- net462 BCL lacks RuntimeInformation/OSPlatform/Architecture (used for OS detection). -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>

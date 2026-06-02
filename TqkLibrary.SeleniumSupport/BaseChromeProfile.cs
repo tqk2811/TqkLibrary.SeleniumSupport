@@ -14,7 +14,9 @@ using System.Threading.Tasks;
 using TqkLibrary.SeleniumSupport.Helper;
 using TqkLibrary.SeleniumSupport.Helper.WaitHeplers;
 using TqkLibrary.SeleniumSupport.Interfaces;
+#if WINAPI
 using TqkLibrary.WinApi.FindWindowHelper;
+#endif
 
 namespace TqkLibrary.SeleniumSupport
 {
@@ -245,7 +247,9 @@ namespace TqkLibrary.SeleniumSupport
             StateChange?.Invoke(IsOpenChrome);
         }
 
+#if WINAPI
         const uint WM_CLOSE = 0x0010;
+#endif
         /// <summary>
         /// 
         /// </summary>
@@ -264,11 +268,15 @@ namespace TqkLibrary.SeleniumSupport
                     }
                     else
                     {
+#if WINAPI
                         ProcessHelper processHelper = new ProcessHelper(_process.Id);
                         foreach (var window in processHelper.WindowsTree)
                         {
                             window.SendMessage(WM_CLOSE, 0, 0);
                         }
+#else
+                        try { _process.Kill(); } catch { }
+#endif
                         using CancellationTokenSource timeout = new CancellationTokenSource(5000);
                         using var register = timeout.Token.Register(() => { try { _process?.Kill(); } catch { } });
 #if NET5_0_OR_GREATER
@@ -403,13 +411,13 @@ namespace TqkLibrary.SeleniumSupport
         {
             if (ChromeDriver is null) throw new InvalidOperationException($"{nameof(ChromeDriver)} is null, need start chrome first");
 
-            var parameters = new Dictionary<string, object>
+            var parameters = new Dictionary<string, object?>
             {
                 ["source"] = "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
             };
             this.ChromeDriver.ExecuteCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
 
-            parameters = new Dictionary<string, object>
+            parameters = new Dictionary<string, object?>
             {
                 ["source"] = @"
 let objectToInspect = window;
