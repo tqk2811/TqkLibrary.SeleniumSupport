@@ -54,8 +54,10 @@ namespace TqkLibrary.SeleniumSupport
 
             IEnumerable<string> handles = webDriver.WindowHandles.ToList();
             webDriver.ExecuteScript($"open(arguments[0])", url);
-            tabSwitch.NewWindowHandle = webDriver.WindowHandles.Except(handles).FirstOrDefault();
-            webDriver.SwitchTo().Window(tabSwitch.NewWindowHandle);
+            string newHandle = webDriver.WindowHandles.Except(handles).FirstOrDefault()
+                ?? throw new InvalidOperationException($"Failed to open new tab for url '{url}'");
+            tabSwitch.NewWindowHandle = newHandle;
+            webDriver.SwitchTo().Window(newHandle);
 
             return tabSwitch;
         }
@@ -103,7 +105,7 @@ namespace TqkLibrary.SeleniumSupport
             }
             if (!string.IsNullOrWhiteSpace(OldWindowHandle))
             {
-                this._webDriver.SwitchTo().Window(OldWindowHandle);
+                this._webDriver.SwitchTo().Window(OldWindowHandle!);
             }
         }
     }

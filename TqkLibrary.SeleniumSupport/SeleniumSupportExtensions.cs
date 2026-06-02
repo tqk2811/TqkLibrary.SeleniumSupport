@@ -82,7 +82,7 @@ namespace TqkLibrary.SeleniumSupport
         {
             if (webElement is null) throw new ArgumentNullException(nameof(webElement));
             if (args is null) args = new object[] { };
-            return webElement.GetWebDriver().ExecuteScript(script, new object[] { webElement }.Concat(args).ToArray());
+            return webElement.GetWebDriver().ExecuteScript(script, new object[] { webElement }.Concat(args).ToArray())!;
         }
 
         /// <summary>
@@ -143,7 +143,8 @@ namespace TqkLibrary.SeleniumSupport
         /// <param name="offsetY"></param>
         public static IWebElement JsDropFile(this IWebElement webElement, string file, int offsetX, int offsetY)
         {
-            IWebElement input = (IWebElement)webElement.GetWebDriver().ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY);
+            IWebElement input = (IWebElement)(webElement.GetWebDriver().ExecuteScript(Resource.JsDropFile, webElement, offsetX, offsetY)
+                ?? throw new InvalidOperationException("JsDropFile script returned null"));
             input.SendKeys(file);
             return webElement;
         }
@@ -538,7 +539,7 @@ return results;
         /// <param name="webElement"></param>
         /// <param name="attributeName"></param>
         /// <returns></returns>
-        public static async Task<string> GetAttributeAsync(this Task<IWebElement> webElement, string attributeName)
+        public static async Task<string?> GetAttributeAsync(this Task<IWebElement> webElement, string attributeName)
             => (await webElement).GetAttribute(attributeName);
 
         /// <summary>
@@ -547,7 +548,7 @@ return results;
         /// <param name="webElement"></param>
         /// <param name="attributeName"></param>
         /// <returns></returns>
-        public static async Task<string> GetDomPropertyAsync(this Task<IWebElement> webElement, string attributeName)
+        public static async Task<string?> GetDomPropertyAsync(this Task<IWebElement> webElement, string attributeName)
             => (await webElement).GetDomProperty(attributeName);
 
         /// <summary>
@@ -556,7 +557,7 @@ return results;
         /// <param name="webElement"></param>
         /// <param name="attributeName"></param>
         /// <returns></returns>
-        public static async Task<string> GetDomAttributeAsync(this Task<IWebElement> webElement, string attributeName)
+        public static async Task<string?> GetDomAttributeAsync(this Task<IWebElement> webElement, string attributeName)
             => (await webElement).GetDomAttribute(attributeName);
 
         /// <summary>
