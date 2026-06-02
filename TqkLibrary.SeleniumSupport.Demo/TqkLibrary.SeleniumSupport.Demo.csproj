@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<!-- Plain net8.0 so the same build runs on Windows + Linux (no -windows TFM). -->
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>11.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<RootNamespace>TqkLibrary.SeleniumSupport.Demo</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\TqkLibrary.SeleniumSupport\TqkLibrary.SeleniumSupport.csproj" />
+	</ItemGroup>
+
+</Project>
