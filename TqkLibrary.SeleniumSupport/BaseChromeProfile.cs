@@ -14,9 +14,6 @@ using System.Threading.Tasks;
 using TqkLibrary.SeleniumSupport.Helper;
 using TqkLibrary.SeleniumSupport.Helper.WaitHeplers;
 using TqkLibrary.SeleniumSupport.Interfaces;
-#if WINAPI
-using TqkLibrary.WinApi.Helpers;
-#endif
 
 namespace TqkLibrary.SeleniumSupport
 {
@@ -247,11 +244,19 @@ namespace TqkLibrary.SeleniumSupport
             StateChange?.Invoke(IsOpenChrome);
         }
 
-#if WINAPI
-        const uint WM_CLOSE = 0x0010;
-#endif
         /// <summary>
-        /// 
+        /// Yêu cầu đóng "mềm" các cửa sổ của tiến trình Chrome đang chạy.
+        /// Mặc định (cross-platform): kill tiến trình. Bản Windows (WindowsChromeProfile)
+        /// override để gửi WM_CLOSE cho từng cửa sổ.
+        /// </summary>
+        /// <param name="process"></param>
+        protected virtual void RequestCloseProcessWindows(Process process)
+        {
+            try { process.Kill(); } catch { }
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <returns></returns>
         public virtual async Task CloseChromeAsync(CancellationToken cancellationToken = default)
@@ -268,15 +273,7 @@ namespace TqkLibrary.SeleniumSupport
                     }
                     else
                     {
-#if WINAPI
-                        ProcessHelper processHelper = new ProcessHelper(_process.Id);
-                        foreach (var window in processHelper.WindowsTree)
-                        {
-                            window.SendMessage(WM_CLOSE, UIntPtr.Zero, IntPtr.Zero);
-                        }
-#else
-                        try { _process.Kill(); } catch { }
-#endif
+                        RequestCloseProcessWindows(_process);
                         using CancellationTokenSource timeout = new CancellationTokenSource(5000);
                         using var register = timeout.Token.Register(() => { try { _process?.Kill(); } catch { } });
 #if NET5_0_OR_GREATER

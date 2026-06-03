@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<!--https://docs.microsoft.com/en-us/nuget/reference/nuspec-->
+	<metadata>
+		<id>$id$</id>
+		<version>$version$</version>
+		<description>Windows-specific extensions for TqkLibrary.SeleniumSupport (WM_CLOSE graceful close)</description>
+		<authors>tqk2811</authors>
+		<projectUrl>https://github.com/tqk2811/TqkLibrary.SeleniumSupport</projectUrl>
+		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.SeleniumSupport.git"/>
+		<license type="expression">MIT</license>
+		<dependencies>
+			<group targetFramework="net462">
+				<dependency id="TqkLibrary.SeleniumSupport" version="$version$" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.2" />
+			</group>
+			<group targetFramework="net6.0-windows10.0.17763">
+				<dependency id="TqkLibrary.SeleniumSupport" version="$version$" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.2" />
+			</group>
+			<group targetFramework="net8.0-windows10.0.17763">
+				<dependency id="TqkLibrary.SeleniumSupport" version="$version$" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.2" />
+			</group>
+			<group targetFramework="net10.0-windows10.0.17763">
+				<dependency id="TqkLibrary.SeleniumSupport" version="$version$" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.2" />
+			</group>
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="bin\Release\**\$id$.dll" target="lib\" />
+		<file src="bin\Release\**\$id$.pdb" target="lib\" />
+		<file src="bin\Release\**\$id$.xml" target="lib\" />
+	</files>
+</package>

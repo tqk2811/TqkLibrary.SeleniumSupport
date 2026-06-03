@@ -3,7 +3,10 @@
 	<Import Project="..\ProjectBuildProperties.targets" />
 
 	<PropertyGroup>
-		<TargetFrameworks>net462;net6.0;net6.0-windows10.0.17763;net8.0;net8.0-windows10.0.17763</TargetFrameworks>
+		<!-- Cross-platform thuần (Windows/Linux/macOS). netstandard2.0 phủ net462/mono…;
+		     net6/8/10 lấy fast-path (WaitForExitAsync net5+, SetUnixFileMode net7+).
+		     Tính năng riêng Windows (WM_CLOSE) nằm ở project TqkLibrary.SeleniumSupport.Windows. -->
+		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net10.0</TargetFrameworks>
 		<LangVersion>11.0</LangVersion>
 		<Platforms>AnyCPU</Platforms>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -15,28 +18,11 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<!-- Windows-only targets (net462 + *-windows*) get WinApi/Registry features, gated by the WINAPI symbol. -->
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net462' or $(TargetFramework.Contains('windows'))">
-		<DefineConstants>$(DefineConstants);WINAPI</DefineConstants>
-	</PropertyGroup>
-
-	<!-- Cross-platform dependencies (all targets, incl. plain net6.0/net8.0 for Linux/macOS). -->
 	<ItemGroup>
-		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="Selenium.WebDriver" Version="4.44.0" />
 		<!-- Selenium 4.44 surfaces IAsyncDisposable but doesn't declare this dep itself. -->
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
-	</ItemGroup>
-
-	<!-- Windows-only dependencies (WM_CLOSE graceful close). -->
-	<ItemGroup Condition="'$(TargetFramework)' == 'net462' or $(TargetFramework.Contains('windows'))">
-		<PackageReference Include="TqkLibrary.WinApi" Version="1.0.2" />
-	</ItemGroup>
-
-	<!-- net462 BCL lacks RuntimeInformation/OSPlatform/Architecture (used for OS detection). -->
-	<ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
