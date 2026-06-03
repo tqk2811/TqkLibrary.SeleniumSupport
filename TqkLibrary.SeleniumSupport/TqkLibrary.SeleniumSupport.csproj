@@ -29,9 +29,8 @@
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
 	</ItemGroup>
 
-	<!-- Windows-only dependencies. -->
+	<!-- Windows-only dependencies (WM_CLOSE graceful close). -->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net462' or $(TargetFramework.Contains('windows'))">
-		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 		<PackageReference Include="TqkLibrary.WinApi" Version="1.0.2" />
 	</ItemGroup>
 

@@ -1,7 +1,4 @@
-﻿#if WINAPI
-using Microsoft.Win32;
-#endif
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -90,17 +87,17 @@ namespace TqkLibrary.SeleniumSupport
             //Path originates from here: https://chromedriver.chromium.org/downloads/version-selection
             if (IsWindows)
             {
-                string chrome64 = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-                string chrome86 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-                if (File.Exists(chrome64)) return chrome64;
-                if (File.Exists(chrome86)) return chrome86;
-#if WINAPI
-                using (RegistryKey? key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"))
+                foreach (string path in new[]
                 {
-                    string? chromePath = key?.GetValue("")?.ToString();
-                    if (!string.IsNullOrEmpty(chromePath)) return chromePath!;
-                }
-#endif
+                    Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles") ?? "C:\\Program Files",
+                                 "Google\\Chrome\\Application\\chrome.exe"),
+                    Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? "C:\\Program Files (x86)",
+                                 "Google\\Chrome\\Application\\chrome.exe"),
+                    //per-user install (cài không cần admin)
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                                 "Google\\Chrome\\Application\\chrome.exe"),
+                })
+                    if (File.Exists(path)) return path;
             }
             else if (IsMacOS)
             {
