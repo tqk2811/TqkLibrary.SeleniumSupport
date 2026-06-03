@@ -17,7 +17,7 @@
 				<dependency id="Newtonsoft.Json" version="13.0.1" />
 				<dependency id="Selenium.WebDriver" version="4.44.0" />
 				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" />
-				<dependency id="TqkLibrary.WinApi" version="1.0.0-build20250616161206" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.2" />
 			</group>
 			<group targetFramework="net6.0">
 				<dependency id="System.Net.Http" version="4.3.4" />
@@ -31,7 +31,7 @@
 				<dependency id="Newtonsoft.Json" version="13.0.1" />
 				<dependency id="Selenium.WebDriver" version="4.44.0" />
 				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" />
-				<dependency id="TqkLibrary.WinApi" version="1.0.0-build20250616161206" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.2" />
 			</group>
 			<group targetFramework="net8.0">
 				<dependency id="System.Net.Http" version="4.3.4" />
@@ -45,7 +45,7 @@
 				<dependency id="Newtonsoft.Json" version="13.0.1" />
 				<dependency id="Selenium.WebDriver" version="4.44.0" />
 				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" />
-				<dependency id="TqkLibrary.WinApi" version="1.0.0-build20250616161206" />
+				<dependency id="TqkLibrary.WinApi" version="1.0.2" />
 			</group>
 		</dependencies>
 	</metadata>

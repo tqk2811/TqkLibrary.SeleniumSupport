@@ -15,7 +15,7 @@ using TqkLibrary.SeleniumSupport.Helper;
 using TqkLibrary.SeleniumSupport.Helper.WaitHeplers;
 using TqkLibrary.SeleniumSupport.Interfaces;
 #if WINAPI
-using TqkLibrary.WinApi.FindWindowHelper;
+using TqkLibrary.WinApi.Helpers;
 #endif
 
 namespace TqkLibrary.SeleniumSupport
@@ -272,7 +272,7 @@ namespace TqkLibrary.SeleniumSupport
                         ProcessHelper processHelper = new ProcessHelper(_process.Id);
                         foreach (var window in processHelper.WindowsTree)
                         {
-                            window.SendMessage(WM_CLOSE, 0, 0);
+                            window.SendMessage(WM_CLOSE, UIntPtr.Zero, IntPtr.Zero);
                         }
 #else
                         try { _process.Kill(); } catch { }

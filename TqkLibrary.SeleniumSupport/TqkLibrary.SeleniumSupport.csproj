@@ -32,7 +32,7 @@
 	<!-- Windows-only dependencies. -->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net462' or $(TargetFramework.Contains('windows'))">
 		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-		<PackageReference Include="TqkLibrary.WinApi" Version="1.0.0-build20250616161206" />
+		<PackageReference Include="TqkLibrary.WinApi" Version="1.0.2" />
 	</ItemGroup>
 
 	<!-- net462 BCL lacks RuntimeInformation/OSPlatform/Architecture (used for OS detection). -->
