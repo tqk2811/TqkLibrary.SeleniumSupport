@@ -24,6 +24,9 @@ namespace TqkLibrary.SeleniumSupport.Demo
 
         private static async Task<int> Main(string[] args)
         {
+            Console.WriteLine($"PID={Environment.ProcessId} waitting debug");
+            Console.ReadLine();
+
             bool headed = args.Contains("--headed", StringComparer.OrdinalIgnoreCase);
             string url = args.FirstOrDefault(a => a.StartsWith("http", StringComparison.OrdinalIgnoreCase)) ?? "https://example.com";
 
