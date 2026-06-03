@@ -19,7 +19,7 @@ namespace TqkLibrary.SeleniumSupport {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resource {
@@ -209,13 +209,14 @@ namespace TqkLibrary.SeleniumSupport {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to /*
-        ///  html2canvas 0.4.1 &lt;http://html2canvas.hertzen.com&gt;
-        ///  Copyright (c) 2013 Niklas von Hertzen
-        ///
-        ///  Released under MIT License
-        ///*/
-        ///(function(t,e,n){&quot;use strict&quot;;function r(t,e,n){var r,a=t.runtimeStyle&amp;&amp;t.runtimeStyle[e],o=t.style;return!/^-?[0-9]+\.?[0-9]*(?:px)?$/i.test(n)&amp;&amp;/^-?\d/.test(n)&amp;&amp;(r=o.left,a&amp;&amp;(t.runtimeStyle.left=t.currentStyle.left),o.left=&quot;fontSize&quot;===e?&quot;1em&quot;:n||0,n=o.pixelLeft+&quot;px&quot;,o.left=r,a&amp;&amp;(t.runtimeStyle.left=a)),/^(thin|medium|thick)$/i.test(n)?n:Math.round(parseFloat(n))+&quot;px&quot;}function a [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to /*!
+        /// * html2canvas 1.4.1 &lt;https://html2canvas.hertzen.com&gt;
+        /// * Copyright (c) 2022 Niklas von Hertzen &lt;https://hertzen.com&gt;
+        /// * Released under MIT License
+        /// */
+        ///!function(A,e){&quot;object&quot;==typeof exports&amp;&amp;&quot;undefined&quot;!=typeof module?module.exports=e():&quot;function&quot;==typeof define&amp;&amp;define.amd?define(e):(A=&quot;undefined&quot;!=typeof globalThis?globalThis:A||self).html2canvas=e()}(this,function(){&quot;use strict&quot;;
+        ////*! *****************************************************************************
+        ///    Copyright (c) Microsoft Cor [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string html2canvas_min {
             get {

@@ -1,8 +1,10 @@
 <Project>
-	<!-- Emit XML doc (IntelliSense) for every packable project; CS1591 = missing doc comment. -->
+	<!-- Emit XML doc (IntelliSense) for every packable project.
+	     CS1591 = missing doc comment; CS1570/CS1587 = malformed/misplaced XML doc — the latter
+	     come from auto-generated *.Designer.cs summaries that embed code resources (e.g. minified JS). -->
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);CS1591</NoWarn>
+		<NoWarn>$(NoWarn);CS1591;CS1570;CS1587</NoWarn>
 	</PropertyGroup>
 
 	<!--
